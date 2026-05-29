@@ -49,6 +49,7 @@ dependencies {
     // Kotlin
     runtimeOnly(libs.coroutines.core)
     runtimeOnly(libs.coroutines.android)
+//    runtimeOnly(libs.coroutines.play.services)
 
     // DI
     implementation(platform(libs.koin.bom))
