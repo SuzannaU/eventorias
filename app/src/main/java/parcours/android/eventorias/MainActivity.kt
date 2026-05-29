@@ -17,6 +17,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
+import org.koin.androidx.compose.koinViewModel
+import parcours.android.eventorias.ui.screen.ListScreen
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 
 class MainActivity : ComponentActivity() {
@@ -29,22 +31,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        startSignInActivity()
+        //startSignInActivity()
         setContent {
             EventoriasTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(
+                    ListScreen(
                         modifier = Modifier.padding(innerPadding),
-                    ) {
-                        Greeting(
-                            name = "Android",
-                        )
-                        Button(
-                            onClick = { startSignInActivity() }
-                        ) {
-                            Text(text = "Se connecter")
-                        }
-                    }
+                        viewModel = koinViewModel(),
+                    )
                 }
             }
         }

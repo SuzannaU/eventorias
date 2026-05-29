@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Eventorias</string>
+    <string name="event_list">Event list</string>
+    <string name="no_events_found">No events found</string>
+    <string name="events">Events</string>
+    <string name="profile">Profile</string>
+    <string name="add_event">Add Event</string>
+    <string name="search">Search</string>
+    <string name="sort">Sort</string>
 </resources>

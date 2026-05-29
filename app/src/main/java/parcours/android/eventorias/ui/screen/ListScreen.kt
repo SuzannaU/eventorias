@@ -1,11 +1,239 @@
 package parcours.android.eventorias.ui.screen
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import com.google.firebase.Timestamp
+import parcours.android.eventorias.R
+import parcours.android.eventorias.domain.model.Event
+import java.text.SimpleDateFormat
+import java.util.Locale
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ListScreen(
+    modifier: Modifier = Modifier,
+    viewModel: ListViewModel
+) {
+    val state by viewModel.listScreenState.collectAsStateWithLifecycle()
+    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
+
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.event_list), fontWeight = FontWeight.Bold) },
+                actions = {
+                    IconButton(onClick = { /* TODO */ }) {
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = stringResource(R.string.search)
+                        )
+                    }
+                    IconButton(onClick = { /* TODO */ }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Sort,
+                            contentDescription = stringResource(R.string.sort)
+                        )
+                    }
+                },
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { /* TODO */ },
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_event))
+            }
+        },
+        bottomBar = {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.onBackground,
+            ) {
+                Spacer(Modifier.weight(1f))
+                NavigationBarItem(
+                    selected = selectedItem == 0,
+                    onClick = { selectedItem = 0 },
+                    icon = { Icon(Icons.Default.Event, contentDescription = null) },
+                    label = { Text(stringResource(R.string.events)) },
+                )
+                NavigationBarItem(
+                    selected = selectedItem == 1,
+                    onClick = { selectedItem = 1 },
+                    icon = { Icon(Icons.Outlined.Person, contentDescription = null) },
+                    label = { Text(stringResource(R.string.profile)) },
+                )
+                Spacer(Modifier.weight(1f))
+            }
+        },
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            when (val currentState = state) {
+                is ListViewModel.ListScreenState.Loading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                    )
+                }
+
+                is ListViewModel.ListScreenState.EventsLoaded -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(currentState.events) { event ->
+                            EventCell(event = event)
+                        }
+                    }
+                }
+
+                is ListViewModel.ListScreenState.NoEvents -> {
+                    Text(
+                        stringResource(R.string.no_events_found),
+                        modifier = Modifier.align(Alignment.Center),
+                    )
+                }
+
+                is ListViewModel.ListScreenState.Error -> {
+                    Text(
+                        currentState.errorMessage ?: "An error occurred",
+                        modifier = Modifier.align(Alignment.Center),
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun EventCell(
-    modifier: Modifier = Modifier,
+    event: Event,
+    modifier: Modifier = Modifier
 ) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(110.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = Modifier.width(12.dp))
 
+            AsyncImage(
+                model = event.author?.pictureUrl,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = event.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    //color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+                Text(
+                    text = formatTimestamp(event.dateTime),
+                    style = MaterialTheme.typography.bodyMedium,
+                    //color = Color.LightGray
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            AsyncImage(
+                model = event.pictureUrl,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(130.dp)
+                    .clip(
+                        RoundedCornerShape(
+                            topEnd = 16.dp,
+                            bottomEnd = 16.dp,
+                            topStart = 8.dp,
+                            bottomStart = 8.dp
+                        )
+                    ),
+                contentScale = ContentScale.Crop
+            )
+        }
+    }
+}
+
+private fun formatTimestamp(timestamp: Timestamp?): String {
+    if (timestamp == null) return "No date"
+    val date = timestamp.toDate()
+    val formatter = SimpleDateFormat("MMMM d, yyyy", Locale.getDefault())
+    return formatter.format(date)
 }
