@@ -38,17 +38,23 @@ class EventRepository(
     }
 
     fun addEvent(event: Event, pictureUri: Uri?) {
+
+        val newDocRef = firestore.collection(EVENT_COLLECTION).document()
+        val generatedId = newDocRef.id
+
         if (pictureUri != null) {
             uploadPicture(pictureUri).addOnSuccessListener { uri ->
                 val eventToSave = event.copy(
+                    eventId = generatedId,
                     pictureUrl = uri.toString()
                 )
-                firestore.collection(EVENT_COLLECTION).document(event.eventId)
-                    .set(eventToSave)
+                newDocRef.set(eventToSave)
             }
         } else {
-            firestore.collection(EVENT_COLLECTION).document(event.eventId)
-                .set(event)
+            val eventToSave = event.copy(
+                eventId = generatedId
+            )
+            newDocRef.set(eventToSave)
         }
     }
 

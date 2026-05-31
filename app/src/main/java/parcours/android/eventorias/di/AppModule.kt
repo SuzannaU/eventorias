@@ -9,7 +9,8 @@ import parcours.android.eventorias.data.EventRepository
 import parcours.android.eventorias.data.UserRepository
 import parcours.android.eventorias.ui.DefaultDispatcherProvider
 import parcours.android.eventorias.ui.DispatcherProvider
-import parcours.android.eventorias.ui.screen.ListViewModel
+import parcours.android.eventorias.ui.screen.add.AddEventViewModel
+import parcours.android.eventorias.ui.screen.list.ListViewModel
 
 val appModule = module {
     single<FirebaseAuth> { FirebaseAuth.getInstance() }
@@ -21,4 +22,5 @@ val appModule = module {
     single<EventRepository> { EventRepository(get(), get()) }
 
     viewModel { ListViewModel(get(), get()) }
+    viewModel { AddEventViewModel(get(), get()) }
 }

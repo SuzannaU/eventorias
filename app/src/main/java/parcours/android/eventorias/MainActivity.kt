@@ -5,20 +5,22 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import org.koin.androidx.compose.koinViewModel
-import parcours.android.eventorias.ui.screen.ListScreen
+import parcours.android.eventorias.ui.screen.add.AddEventScreen
+import parcours.android.eventorias.ui.screen.list.ListScreen
+import parcours.android.eventorias.ui.screen.list.ListViewModel
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 
 class MainActivity : ComponentActivity() {
@@ -33,11 +35,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         //startSignInActivity()
         setContent {
+            val navController = rememberNavController()
             EventoriasTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ListScreen(
+                    EventoriasNavHost(
                         modifier = Modifier.padding(innerPadding),
-                        viewModel = koinViewModel(),
+                        navHostController = navController,
+                        listViewModel = koinViewModel(),
                     )
                 }
             }
@@ -73,17 +77,29 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun EventoriasNavHost(
+    modifier: Modifier = Modifier,
+    navHostController: NavHostController,
+    listViewModel: ListViewModel,
+) {
+    NavHost(
+        navController = navHostController,
+        startDestination = "eventList",
+        modifier = modifier,
+    ) {
+        composable(route = "eventList") {
+            ListScreen(
+                viewModel = koinViewModel(),
+                onAddClick = { navHostController.navigate("addEvent") }
+            )
+        }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    EventoriasTheme {
-        Greeting("Android")
+        composable(route = "addEvent") {
+            AddEventScreen(
+                viewModel = koinViewModel(),
+                onBackClick = { navHostController.navigateUp() },
+                onValidateClick = { },
+            )
+        }
     }
 }

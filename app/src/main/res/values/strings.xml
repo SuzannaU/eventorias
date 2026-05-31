@@ -7,4 +7,18 @@
     <string name="add_event">Add Event</string>
     <string name="search">Search</string>
     <string name="sort">Sort</string>
+    <string name="no_date">No date</string>
+    <string name="event_creation">Creation of an event</string>
+    <string name="navigate_back">Navigate back</string>
+    <string name="validate">Validate</string>
+    <string name="title">Title</string>
+    <string name="title_placeholder">Enter title</string>
+    <string name="description">Description</string>
+    <string name="description_placeholder">Tap here to enter your description</string>
+    <string name="date_placeholder">MM/DD/YYYY</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="time_placeholder">HH : MM</string>
+    <string name="address">Address</string>
+    <string name="address_placeholder">Enter full address</string>
 </resources>
