@@ -1,14 +1,22 @@
 package parcours.android.eventorias
 
+import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -18,12 +26,15 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import org.koin.androidx.compose.koinViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import parcours.android.eventorias.ui.screen.add.AddEventScreen
+import parcours.android.eventorias.ui.screen.add.AddEventViewModel
 import parcours.android.eventorias.ui.screen.list.ListScreen
-import parcours.android.eventorias.ui.screen.list.ListViewModel
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: MainViewModel by viewModel()
 
     private val signInLauncher = registerForActivityResult(
         FirebaseAuthUIActivityResultContract(),
@@ -36,12 +47,12 @@ class MainActivity : ComponentActivity() {
         //startSignInActivity()
         setContent {
             val navController = rememberNavController()
+
             EventoriasTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     EventoriasNavHost(
                         modifier = Modifier.padding(innerPadding),
                         navHostController = navController,
-                        listViewModel = koinViewModel(),
                     )
                 }
             }
@@ -80,7 +91,6 @@ class MainActivity : ComponentActivity() {
 fun EventoriasNavHost(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
-    listViewModel: ListViewModel,
 ) {
     NavHost(
         navController = navHostController,
@@ -95,8 +105,9 @@ fun EventoriasNavHost(
         }
 
         composable(route = "addEvent") {
+            val addViewModel: AddEventViewModel = koinViewModel()
             AddEventScreen(
-                viewModel = koinViewModel(),
+                viewModel = addViewModel,
                 onBackClick = { navHostController.navigateUp() },
                 onValidateClick = { },
             )

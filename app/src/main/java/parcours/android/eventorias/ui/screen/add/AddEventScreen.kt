@@ -1,5 +1,8 @@
 package parcours.android.eventorias.ui.screen.add
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,14 +47,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import parcours.android.eventorias.R
-import parcours.android.eventorias.ui.theme.EventoriasTheme
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -64,6 +68,18 @@ fun AddEventScreen(
     onValidateClick: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    var capturedUri by remember { mutableStateOf<Uri?>(null) }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            capturedUri?.let { uri ->
+                viewModel.updateUri(uri)
+            }
+        }
+    }
 
     AddEventScreenContent(
         uiState = uiState,
@@ -73,7 +89,12 @@ fun AddEventScreen(
         onDateChange = viewModel::updateDate,
         onTimeChange = viewModel::updateTime,
         onBackClick = onBackClick,
-        onValidateClick = onValidateClick
+        onOpenCameraClick = {
+            val uri = viewModel.generateImageUri(context)
+            capturedUri = uri
+            cameraLauncher.launch(uri)
+        },
+        onValidateClick = onValidateClick,
     )
 }
 
@@ -87,8 +108,10 @@ fun AddEventScreenContent(
     onDateChange: (String) -> Unit,
     onTimeChange: (String) -> Unit,
     onBackClick: () -> Unit,
+    onOpenCameraClick: () -> Unit,
     onValidateClick: () -> Unit,
 ) {
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -138,7 +161,8 @@ fun AddEventScreenContent(
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -184,6 +208,15 @@ fun AddEventScreenContent(
                 placeholder = stringResource(R.string.address_placeholder)
             )
 
+            if (uiState.uri != null) {
+                AsyncImage(
+                    model = uiState.uri,
+                    contentDescription = null,
+                    modifier = Modifier.size(100.dp, 100.dp),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -192,7 +225,7 @@ fun AddEventScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
-                    onClick = { /* TODO */ },
+                    onClick = { onOpenCameraClick() },
                     modifier = Modifier.size(64.dp),
                     shape = RoundedCornerShape(16.dp),
                     color = Color.White
@@ -364,19 +397,19 @@ fun TimePickerField(
     )
 }
 
-@Preview
-@Composable
-fun AddEventScreenPreview() {
-    EventoriasTheme {
-        AddEventScreenContent(
-            onTitleChange = {},
-            onDescriptionChange = {},
-            onLocationChange = {},
-            onDateChange = {},
-            onTimeChange = {},
-            onBackClick = {},
-            onValidateClick = {},
-            uiState = AddEventViewModel.AddEventUiState()
-        )
-    }
-}
+//@Preview
+//@Composable
+//fun AddEventScreenPreview() {
+//    EventoriasTheme {
+//        AddEventScreenContent(
+//            onTitleChange = {},
+//            onDescriptionChange = {},
+//            onLocationChange = {},
+//            onDateChange = {},
+//            onTimeChange = {},
+//            onBackClick = {},
+//            onValidateClick = {},
+//            uiState = AddEventViewModel.AddEventUiState()
+//        )
+//    }
+//}
