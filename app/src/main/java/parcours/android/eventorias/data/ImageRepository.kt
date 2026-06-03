@@ -19,8 +19,6 @@ class ImageRepository {
             directory
         )
 
-        // TODO create file provider in XML
-
         val authority = "${context.packageName}.fileprovider"
         return FileProvider.getUriForFile(context, authority, file)
     }

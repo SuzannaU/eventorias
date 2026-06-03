@@ -2,6 +2,7 @@ package parcours.android.eventorias.ui.screen.add
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -70,7 +71,7 @@ fun AddEventScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    var capturedUri by remember { mutableStateOf<Uri?>(null) }
+    var capturedUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -80,6 +81,17 @@ fun AddEventScreen(
             }
         }
     }
+
+    var selectedPhotoUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    val photoPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            uri?.let {
+                selectedPhotoUri = it
+                viewModel.updateUri(it)
+            }
+        }
+    )
 
     AddEventScreenContent(
         uiState = uiState,
@@ -94,7 +106,10 @@ fun AddEventScreen(
             capturedUri = uri
             cameraLauncher.launch(uri)
         },
-        onValidateClick = onValidateClick,
+        onSelectPhotoClick = {
+            photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        },
+        onValidateClick = viewModel::addEvent,
     )
 }
 
@@ -109,6 +124,7 @@ fun AddEventScreenContent(
     onTimeChange: (String) -> Unit,
     onBackClick: () -> Unit,
     onOpenCameraClick: () -> Unit,
+    onSelectPhotoClick: () -> Unit,
     onValidateClick: () -> Unit,
 ) {
 
@@ -168,14 +184,14 @@ fun AddEventScreenContent(
 
             CustomTextField(
                 label = stringResource(R.string.title),
-                value = uiState.event.title,
+                value = uiState.title,
                 onValueChange = onTitleChange,
                 placeholder = stringResource(R.string.title_placeholder)
             )
 
             CustomTextField(
                 label = stringResource(R.string.description),
-                value = uiState.event.description ?: "",
+                value = uiState.description,
                 onValueChange = onDescriptionChange,
                 placeholder = stringResource(R.string.description_placeholder),
                 isSingleLine = false,
@@ -203,7 +219,7 @@ fun AddEventScreenContent(
 
             CustomTextField(
                 label = stringResource(R.string.address),
-                value = uiState.event.location ?: "",
+                value = uiState.location,
                 onValueChange = onLocationChange,
                 placeholder = stringResource(R.string.address_placeholder)
             )
@@ -242,7 +258,7 @@ fun AddEventScreenContent(
                 Spacer(modifier = Modifier.width(24.dp))
 
                 Surface(
-                    onClick = { /* TODO */ },
+                    onClick = { onSelectPhotoClick() },
                     modifier = Modifier.size(64.dp),
                     shape = RoundedCornerShape(16.dp),
                     color = MaterialTheme.colorScheme.primaryContainer,
