@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -13,6 +14,10 @@ import parcours.android.eventorias.data.ImageRepository
 import parcours.android.eventorias.data.UserRepository
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.domain.model.User
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
 class AddEventViewModel(
     private val eventRepository: EventRepository,
@@ -38,12 +43,16 @@ class AddEventViewModel(
         _uiState.update { it.copy(location = input) }
     }
 
-    fun updateDate(input: String) {
-        _uiState.update { it.copy(date = input) }
+    fun updateDate(input: Long?) {
+        _uiState.update { it.copy(selectedDateMillis = input) }
     }
 
-    fun updateTime(input: String) {
-        _uiState.update { it.copy(time = input) }
+    fun updateHour(input: Int) {
+        _uiState.update { it.copy(selectedHour = input) }
+    }
+
+    fun updateMinute(input: Int) {
+        _uiState.update { it.copy(selectedMinute = input) }
     }
 
     fun updateUri(input: Uri?) {
@@ -54,12 +63,24 @@ class AddEventViewModel(
         return imageRepository.createImageUri(context)
     }
 
+    private fun mergeDateTime(): Timestamp {
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            timeInMillis = _uiState.value.selectedDateMillis ?: System.currentTimeMillis()
+            set(Calendar.HOUR_OF_DAY, _uiState.value.selectedHour ?: 0)
+            set(Calendar.MINUTE, _uiState.value.selectedMinute ?: 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        return Timestamp(calendar.time)
+    }
+
     fun addEvent() {
         val user = userRepository.getCurrentUser()
-        // TODO calculate dateTime from date and time
+
         val event = Event(
             title = _uiState.value.title,
             description = _uiState.value.description,
+            dateTime = mergeDateTime(),
             location = _uiState.value.location,
             pictureUrl = _uiState.value.uri.toString(),
         )
@@ -95,11 +116,24 @@ class AddEventViewModel(
         val title: String = "",
         val description: String = "",
         val location: String = "",
-        val date: String = "",
-        val time: String = "",
+        val selectedDateMillis: Long? = null,
+        val selectedHour: Int? = null,
+        val selectedMinute: Int? = null,
         val uri: Uri? = null,
-        val isSaving: Boolean = false,
-    )
+    ) {
+        val formattedTime: String
+            get() = if (selectedHour != null && selectedMinute != null) {
+                String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute)
+            } else {
+                ""
+            }
+
+        private val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+        val formattedDate: String
+            get() = selectedDateMillis?.let {
+                dateFormatter.format(it)
+            } ?: ""
+    }
 
     sealed class SaveState {
         object Idle : SaveState()

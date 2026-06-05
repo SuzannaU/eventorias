@@ -60,10 +60,6 @@ import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import parcours.android.eventorias.R
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun AddEventScreen(
@@ -112,12 +108,13 @@ fun AddEventScreen(
 
     AddEventScreenContent(
         uiState = uiState,
+        onBackClick = onBackClick,
         onTitleChange = viewModel::updateTitle,
         onDescriptionChange = viewModel::updateDescription,
         onLocationChange = viewModel::updateLocation,
         onDateChange = viewModel::updateDate,
-        onTimeChange = viewModel::updateTime,
-        onBackClick = onBackClick,
+        onHourChange = viewModel::updateHour,
+        onMinuteChange = viewModel::updateMinute,
         onOpenCameraClick = {
             val uri = viewModel.generateImageUri(context)
             capturedUri = uri
@@ -134,12 +131,13 @@ fun AddEventScreen(
 @Composable
 fun AddEventScreenContent(
     uiState: AddEventViewModel.AddEventUiState,
+    onBackClick: () -> Unit,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onLocationChange: (String) -> Unit,
-    onDateChange: (String) -> Unit,
-    onTimeChange: (String) -> Unit,
-    onBackClick: () -> Unit,
+    onDateChange: (Long?) -> Unit,
+    onHourChange: (Int) -> Unit,
+    onMinuteChange: (Int) -> Unit,
     onOpenCameraClick: () -> Unit,
     onSelectPhotoClick: () -> Unit,
     onValidateClick: () -> Unit,
@@ -220,15 +218,16 @@ fun AddEventScreenContent(
             ) {
                 DatePickerField(
                     label = stringResource(R.string.date),
-                    value = uiState.date,
-                    onValueChange = onDateChange,
+                    value = uiState.formattedDate,
+                    onDateValueChange = onDateChange,
                     placeholder = stringResource(R.string.date_placeholder),
                     modifier = Modifier.weight(1f)
                 )
                 TimePickerField(
                     label = stringResource(R.string.time),
-                    value = uiState.time,
-                    onValueChange = onTimeChange,
+                    value = uiState.formattedTime,
+                    onHourValueChange = onHourChange,
+                    onMinuteValueChange = onMinuteChange,
                     placeholder = stringResource(R.string.time_placeholder),
                     modifier = Modifier.weight(1f)
                 )
@@ -362,7 +361,7 @@ fun CustomTextField(
 fun DatePickerField(
     label: String,
     value: String,
-    onValueChange: (String) -> Unit,
+    onDateValueChange: (Long?) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
     minHeight: Dp = 0.dp
@@ -373,10 +372,7 @@ fun DatePickerField(
         EventDatePicker(
             onDateSelected = { selectedDateMillis ->
                 selectedDateMillis?.let {
-                    val date = Date(it)
-                    val formattedDate =
-                        SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(date)
-                    onValueChange(formattedDate)
+                    onDateValueChange(selectedDateMillis)
                 }
                 showDatePicker = false
             },
@@ -399,21 +395,19 @@ fun DatePickerField(
 fun TimePickerField(
     label: String,
     value: String,
-    onValueChange: (String) -> Unit,
+    onHourValueChange: (Int) -> Unit,
+    onMinuteValueChange: (Int) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
     minHeight: Dp = 0.dp
 ) {
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
-    val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
 
     if (showTimePicker) {
         EventTimePicker(
             onConfirm = { state ->
-                val cal = Calendar.getInstance()
-                cal.set(Calendar.HOUR_OF_DAY, state.hour)
-                cal.set(Calendar.MINUTE, state.minute)
-                onValueChange(formatter.format(cal.time))
+                onHourValueChange(state.hour)
+                onMinuteValueChange(state.minute)
                 showTimePicker = false
             },
             onDismiss = { showTimePicker = false }
