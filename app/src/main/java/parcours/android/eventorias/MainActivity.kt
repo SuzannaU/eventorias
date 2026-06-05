@@ -1,23 +1,17 @@
 package parcours.android.eventorias
 
-import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -44,16 +38,20 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        //startSignInActivity()
         setContent {
             val navController = rememberNavController()
-
+            val authState by viewModel.authState.collectAsStateWithLifecycle()
             EventoriasTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    EventoriasNavHost(
-                        modifier = Modifier.padding(innerPadding),
-                        navHostController = navController,
-                    )
+                    if (authState.isAuthenticated) {
+                        EventoriasNavHost(
+                            modifier = Modifier.padding(innerPadding),
+                            navHostController = navController,
+                            onFilterClick = { viewModel.signOut() },
+                        )
+                    } else {
+                        startSignInActivity()
+                    }
                 }
             }
         }
@@ -80,7 +78,7 @@ class MainActivity : ComponentActivity() {
         val response = result.idpResponse
         if (result.resultCode == RESULT_OK) {
             Log.d("TAG", "user signed in")
-            //viewModel.createUser()
+            viewModel.createUser()
         } else if (response?.error != null) {
             Log.d("TAG", "Error while signing in: ${response.error?.message}")
         }
@@ -91,6 +89,7 @@ class MainActivity : ComponentActivity() {
 fun EventoriasNavHost(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
+    onFilterClick: () -> Unit,
 ) {
     NavHost(
         navController = navHostController,
@@ -100,7 +99,8 @@ fun EventoriasNavHost(
         composable(route = "eventList") {
             ListScreen(
                 viewModel = koinViewModel(),
-                onAddClick = { navHostController.navigate("addEvent") }
+                onAddClick = { navHostController.navigate("addEvent") },
+                onFilterClick = onFilterClick,
             )
         }
 
@@ -109,7 +109,7 @@ fun EventoriasNavHost(
             AddEventScreen(
                 viewModel = addViewModel,
                 onBackClick = { navHostController.navigateUp() },
-                onValidateClick = { },
+                onSaveSuccessful = { navHostController.navigate("eventList") }
             )
         }
     }

@@ -27,7 +27,7 @@ class AddEventViewModel(
     val saveState = _saveState.asStateFlow()
 
     fun updateTitle(title: String) {
-        _uiState.update { it.copy(title = title)}
+        _uiState.update { it.copy(title = title) }
     }
 
     fun updateDescription(description: String) {
@@ -55,7 +55,6 @@ class AddEventViewModel(
     }
 
     fun addEvent() {
-Log.d("TAG", "addEvent: ${_uiState.value}")
         val user = userRepository.getCurrentUser()
         // TODO calculate dateTime from date and time
         val event = Event(

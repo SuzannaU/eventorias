@@ -33,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -40,6 +41,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +56,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import parcours.android.eventorias.R
@@ -66,9 +69,12 @@ import java.util.Locale
 fun AddEventScreen(
     viewModel: AddEventViewModel,
     onBackClick: () -> Unit,
-    onValidateClick: () -> Unit,
+    onSaveSuccessful: () -> Unit,
 ) {
+
+    val snackbarHostState = remember { SnackbarHostState() }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val saveState by viewModel.saveState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     var capturedUri by rememberSaveable { mutableStateOf<Uri?>(null) }
@@ -92,6 +98,17 @@ fun AddEventScreen(
             }
         }
     )
+
+    LaunchedEffect(saveState) {
+        when (saveState) {
+            AddEventViewModel.SaveState.EventSaved -> onSaveSuccessful()
+            AddEventViewModel.SaveState.Idle -> {}
+            AddEventViewModel.SaveState.NetworkError ->
+                snackbarHostState.showSnackbar(getString(context, R.string.network_error))
+            AddEventViewModel.SaveState.UnknownError ->
+                snackbarHostState.showSnackbar(getString(context, R.string.unknown_error))
+        }
+    }
 
     AddEventScreenContent(
         uiState = uiState,

@@ -1,5 +1,6 @@
 package parcours.android.eventorias.ui.screen.list
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,6 +66,7 @@ fun ListScreen(
     modifier: Modifier = Modifier,
     viewModel: ListViewModel,
     onAddClick: () -> Unit,
+    onFilterClick: () -> Unit,
 ) {
     val state by viewModel.listScreenState.collectAsStateWithLifecycle()
     var selectedItem by rememberSaveable { mutableIntStateOf(0) }
@@ -81,7 +83,7 @@ fun ListScreen(
                             contentDescription = stringResource(R.string.search)
                         )
                     }
-                    IconButton(onClick = { /* TODO */ }) {
+                    IconButton(onClick = { onFilterClick() }) {
                         Icon(
                             Icons.AutoMirrored.Filled.Sort,
                             contentDescription = stringResource(R.string.sort)
@@ -219,7 +221,7 @@ fun EventCell(
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxHeight()
-                    .width(130.dp)
+                    .width(150.dp)
                     .clip(
                         RoundedCornerShape(
                             topEnd = 16.dp,
