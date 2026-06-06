@@ -23,4 +23,8 @@
     <string name="address_placeholder">Enter full address</string>
     <string name="network_error">Network Error</string>
     <string name="unknown_error">Unknown Error</string>
+    <string name="error">Error</string>
+    <string name="try_again">Try again</string>
+    <string name="error_message">An error has occured,\nplease try again later</string>
+    <string name="connexion_problem">Connexion problem during authentication</string>
 </resources>

@@ -1,6 +1,5 @@
 package parcours.android.eventorias.ui.screen.list
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,6 +48,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -56,6 +56,7 @@ import coil.compose.AsyncImage
 import com.google.firebase.Timestamp
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -138,7 +139,7 @@ fun ListScreen(
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(currentState.events) { event ->
                             EventCell(event = event)
@@ -154,9 +155,10 @@ fun ListScreen(
                 }
 
                 is ListViewModel.ListScreenState.Error -> {
-                    Text(
-                        currentState.errorMessage ?: "An error occurred",
-                        modifier = Modifier.align(Alignment.Center),
+                    ErrorScreen(
+                        errorMessage = currentState.errorMessage
+                            ?: stringResource(R.string.error_message),
+                        onRetry = { viewModel.loadEvents() }
                     )
                 }
             }
@@ -172,8 +174,8 @@ fun EventCell(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(110.dp),
-        shape = RoundedCornerShape(16.dp),
+            .height(90.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
@@ -205,7 +207,8 @@ fun EventCell(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = formatTimestamp(event.dateTime) ?: stringResource(R.string.no_date),

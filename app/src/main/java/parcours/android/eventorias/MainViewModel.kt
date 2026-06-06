@@ -1,8 +1,5 @@
 package parcours.android.eventorias
 
-import android.content.Context
-import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.FirebaseNetworkException
@@ -11,17 +8,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import parcours.android.eventorias.data.ImageRepository
 import parcours.android.eventorias.data.UserRepository
 
 class MainViewModel(
     private val userRepository: UserRepository,
-    private val imageRepository: ImageRepository,
     private val firebaseAuth: FirebaseAuth,
-): ViewModel() {
+) : ViewModel() {
 
-    private val _authState = MutableStateFlow(AuthState())
-    val authState = _authState.asStateFlow()
+    private val _userAuthState = MutableStateFlow(UserAuthState(isUserAuthenticated = firebaseAuth.currentUser != null))
+    val userAuthState = _userAuthState.asStateFlow()
+
+    private val _authNetworkState = MutableStateFlow(NetworkState())
+    val authNetworkState = _authNetworkState.asStateFlow()
 
     private lateinit var listener: FirebaseAuth.AuthStateListener
 
@@ -32,11 +30,16 @@ class MainViewModel(
     private fun observeAuthState() {
         try {
             listener = FirebaseAuth.AuthStateListener {
-                _authState.value = AuthState(isAuthenticated = it.currentUser != null)
+                _userAuthState.value = UserAuthState(isUserAuthenticated = it.currentUser != null)
             }
             firebaseAuth.addAuthStateListener(listener)
+            _authNetworkState.update {
+                _authNetworkState.value.copy(isAuthConnected = true)
+            }
         } catch (e: FirebaseNetworkException) {
-            Log.e("FirebaseNetworkException", e.message.toString())
+            _authNetworkState.update {
+                _authNetworkState.value.copy(isAuthConnected = false)
+            }
         }
     }
 
@@ -46,7 +49,7 @@ class MainViewModel(
     }
 
     fun createUser() {
-        viewModelScope.launch{
+        viewModelScope.launch {
             userRepository.createUser()
         }
     }
@@ -56,11 +59,11 @@ class MainViewModel(
     }
 
 
-data class AuthState(
-    val isAuthenticated: Boolean = false,
-)
+    data class UserAuthState(
+        val isUserAuthenticated: Boolean = false,
+    )
 
-    fun generateImageUri(context: Context): Uri {
-        return imageRepository.createImageUri(context)
-    }
+    data class NetworkState(
+        val isAuthConnected: Boolean = false,
+    )
 }

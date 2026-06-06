@@ -24,7 +24,7 @@ val appModule = module {
     single<EventRepository> { EventRepository(get(), get()) }
     single<ImageRepository> { ImageRepository() }
 
-    viewModel { MainViewModel(get(), get(), get()) }
+    viewModel { MainViewModel(get(), get()) }
     viewModel { ListViewModel(get(), get()) }
     viewModel { AddEventViewModel(get(), get(), get()) }
 }

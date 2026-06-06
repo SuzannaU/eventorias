@@ -23,7 +23,7 @@ class ListViewModel(
         loadEvents()
     }
 
-    private fun loadEvents() {
+    fun loadEvents() {
         viewModelScope.launch {
             delay(1000)
             withContext(dispatcher.io) {

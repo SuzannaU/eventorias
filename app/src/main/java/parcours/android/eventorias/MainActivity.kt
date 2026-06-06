@@ -8,9 +8,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -23,6 +25,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import parcours.android.eventorias.ui.screen.add.AddEventScreen
 import parcours.android.eventorias.ui.screen.add.AddEventViewModel
+import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.screen.list.ListScreen
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 
@@ -40,12 +43,19 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            val authState by viewModel.authState.collectAsStateWithLifecycle()
+            val userAuthState by viewModel.userAuthState.collectAsStateWithLifecycle()
+            val authNetworkState by viewModel.authNetworkState.collectAsStateWithLifecycle()
             EventoriasTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    if (authState.isAuthenticated) {
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    if (!authNetworkState.isAuthConnected) {
+                        ErrorScreen(
+                            errorMessage = stringResource(R.string.connexion_problem),
+                            onRetry = {
+                                startSignInActivity()
+                            }
+                        )
+                    } else if (userAuthState.isUserAuthenticated) {
                         EventoriasNavHost(
-                            modifier = Modifier.padding(innerPadding),
                             navHostController = navController,
                             onFilterClick = { viewModel.signOut() },
                         )
@@ -67,7 +77,6 @@ class MainActivity : ComponentActivity() {
             .createSignInIntentBuilder()
             .setTheme(R.style.Theme_Eventorias_Login)
             .setAvailableProviders(providers)
-            .setAlwaysShowSignInMethodScreen(true)
             .setLogo(R.drawable.logo_eventorias)
             .build()
 
@@ -77,10 +86,10 @@ class MainActivity : ComponentActivity() {
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         val response = result.idpResponse
         if (result.resultCode == RESULT_OK) {
-            Log.d("TAG", "user signed in")
+            Log.i("TAG", "user signed in")
             viewModel.createUser()
         } else if (response?.error != null) {
-            Log.d("TAG", "Error while signing in: ${response.error?.message}")
+            Log.i("TAG", "Error while signing in: ${response.error?.message}")
         }
     }
 }
