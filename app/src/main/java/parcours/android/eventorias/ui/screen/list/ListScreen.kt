@@ -18,8 +18,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Person
@@ -30,20 +32,25 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -69,22 +76,77 @@ fun ListScreen(
     onAddClick: () -> Unit,
     onFilterClick: () -> Unit,
 ) {
-    val state by viewModel.listScreenState.collectAsStateWithLifecycle()
+    val uiState by viewModel.listScreenState.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    var isSearchMode by rememberSaveable { mutableStateOf(false) }
     var selectedItem by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
         modifier = modifier,
         topBar = {
+            if (isSearchMode) {
+                TopAppBar(
+                    title = {
+                        TextField(
+                            value = searchQuery,
+                            onValueChange = { viewModel.onSearchQueryChange(it) },
+                            placeholder = { Text(stringResource(R.string.search)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            )
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            isSearchMode = false
+                            viewModel.onSearchQueryChange("")
+                        }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        }
+                    },
+                    actions = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(
+                                onClick = { viewModel.onSearchQueryChange("") },
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = null)
+                            }
+                        }
+                    }
+                )
+            } else {
             TopAppBar(
-                title = { Text(stringResource(R.string.event_list), fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        stringResource(R.string.event_list),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 actions = {
-                    IconButton(onClick = { /* TODO */ }) {
+                    IconButton(
+                        onClick = { isSearchMode = true },
+                        colors = IconButtonDefaults.iconButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledContentColor = MaterialTheme.colorScheme.outlineVariant,
+                        )
+                    ) {
                         Icon(
                             Icons.Default.Search,
                             contentDescription = stringResource(R.string.search)
                         )
                     }
-                    IconButton(onClick = { onFilterClick() }) {
+                    IconButton(
+                        onClick = { onFilterClick() },
+                        colors = IconButtonDefaults.iconButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledContentColor = MaterialTheme.colorScheme.outlineVariant,
+                        )
+                    ) {
                         Icon(
                             Icons.AutoMirrored.Filled.Sort,
                             contentDescription = stringResource(R.string.sort)
@@ -92,6 +154,7 @@ fun ListScreen(
                     }
                 },
             )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -128,7 +191,7 @@ fun ListScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when (val currentState = state) {
+            when (val currentState = uiState) {
                 is ListViewModel.ListScreenState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -154,11 +217,18 @@ fun ListScreen(
                     )
                 }
 
+                is ListViewModel.ListScreenState.NoResultsFound -> {
+                    Text(
+                        stringResource(R.string.no_results_found),
+                        modifier = Modifier.align(Alignment.Center),
+                    )
+                }
+
                 is ListViewModel.ListScreenState.Error -> {
                     ErrorScreen(
                         errorMessage = currentState.errorMessage
                             ?: stringResource(R.string.error_message),
-                        onRetry = { viewModel.loadEvents() }
+                        onRetry = { viewModel.onRetry() }
                     )
                 }
             }
@@ -234,7 +304,8 @@ fun EventCell(
                             bottomStart = 8.dp
                         )
                     ),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(R.drawable.baseline_face_24), //TODO change to an appropriate image
             )
         }
     }
