@@ -193,7 +193,8 @@ fun EventCell(
                     .size(50.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.baseline_face_24)
+                placeholder = painterResource(R.drawable.baseline_face_24),
+                error = painterResource(R.drawable.baseline_face_24),
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -243,7 +244,7 @@ private fun formatTimestamp(timestamp: Timestamp?): String? {
     if (timestamp == null) return null
     val locale = Locale.getDefault()
     val date = timestamp.toDate()
-    val formatter = SimpleDateFormat("MMMM d, yyyy", locale)
+    val formatter = SimpleDateFormat("MMMM d, yyyy", locale)    // TODO localize?
     return formatter.format(date)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 }
