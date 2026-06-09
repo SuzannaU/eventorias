@@ -27,6 +27,7 @@ import parcours.android.eventorias.ui.screen.add.AddEventScreen
 import parcours.android.eventorias.ui.screen.add.AddEventViewModel
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.screen.list.ListScreen
+import parcours.android.eventorias.ui.screen.profile.ProfileScreen
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 
 class MainActivity : ComponentActivity() {
@@ -110,6 +111,7 @@ fun EventoriasNavHost(
                 viewModel = koinViewModel(),
                 onAddClick = { navHostController.navigate("addEvent") },
                 onFilterClick = onFilterClick,
+                onProfileClick = { navHostController.navigate("profile") }
             )
         }
 
@@ -119,6 +121,13 @@ fun EventoriasNavHost(
                 viewModel = addViewModel,
                 onBackClick = { navHostController.navigateUp() },
                 onSaveSuccessful = { navHostController.navigate("eventList") }
+            )
+        }
+
+        composable(route = "profile") {
+            ProfileScreen(
+                viewModel = koinViewModel(),
+                onEventsClick = { navHostController.navigate("eventList") }
             )
         }
     }

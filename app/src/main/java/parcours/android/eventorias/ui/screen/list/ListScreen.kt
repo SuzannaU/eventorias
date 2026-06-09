@@ -76,11 +76,11 @@ fun ListScreen(
     viewModel: ListViewModel,
     onAddClick: () -> Unit,
     onFilterClick: () -> Unit,
+    onProfileClick: () -> Unit,
 ) {
     val uiState by viewModel.listScreenState.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     var isSearchMode by rememberSaveable { mutableStateOf(false) }
-    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
         modifier = modifier,
@@ -172,14 +172,14 @@ fun ListScreen(
             ) {
                 Spacer(Modifier.weight(1f))
                 NavigationBarItem(
-                    selected = selectedItem == 0,
-                    onClick = { selectedItem = 0 },
+                    selected = true,
+                    onClick = { },
                     icon = { Icon(Icons.Default.Event, contentDescription = null) },
                     label = { Text(stringResource(R.string.events)) },
                 )
                 NavigationBarItem(
-                    selected = selectedItem == 1,
-                    onClick = { selectedItem = 1 },
+                    selected = false,
+                    onClick = { onProfileClick() },
                     icon = { Icon(Icons.Outlined.Person, contentDescription = null) },
                     label = { Text(stringResource(R.string.profile)) },
                 )

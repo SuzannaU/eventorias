@@ -28,4 +28,8 @@
     <string name="error_message">An error has occured,\nplease try again later</string>
     <string name="connexion_problem">Connexion problem during authentication</string>
     <string name="no_results_found">No results found</string>
+    <string name="user_profile">User profile</string>
+    <string name="name">Name</string>
+    <string name="email">E-mail</string>
+    <string name="notifications">Notifications</string>
 </resources>

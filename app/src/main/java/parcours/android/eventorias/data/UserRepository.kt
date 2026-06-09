@@ -18,8 +18,9 @@ class UserRepository(
         val user = authUser?.let {
             User(
                 userId = it.uid,
+                username = it.displayName,
+                email = it.email,
                 pictureUrl = it.photoUrl?.toString(),
-                username = it.displayName ?: "",
             )
         }
         return user

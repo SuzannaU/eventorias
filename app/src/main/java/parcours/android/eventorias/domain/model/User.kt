@@ -6,6 +6,7 @@ import java.io.Serializable
 data class User(
     @DocumentId
     val userId: String = "",
+    val username: String? = null,
+    val email: String? = null,
     val pictureUrl: String? = null,
-    val username: String = "",
 ) : Serializable
