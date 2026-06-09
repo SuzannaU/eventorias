@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.Timestamp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -75,6 +76,7 @@ class AddEventViewModel(
     }
 
     fun addEvent() {
+        _saveState.value = SaveState.Loading
         val user = userRepository.getCurrentUser()
 
         val event = Event(
@@ -101,6 +103,10 @@ class AddEventViewModel(
                 Log.e("TAG", "Error while adding post: ${e.message}")
             }
         }
+    }
+
+    fun resetSaveState() {
+        _saveState.value = SaveState.Idle
     }
 
     data class FormErrorState(
@@ -137,6 +143,7 @@ class AddEventViewModel(
 
     sealed class SaveState {
         object Idle : SaveState()
+        object Loading : SaveState()
         object EventSaved : SaveState()
         object NetworkError : SaveState()
         object UnknownError : SaveState()

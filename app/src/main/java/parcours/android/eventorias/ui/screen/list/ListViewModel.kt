@@ -33,10 +33,6 @@ class ListViewModel(
 
     private val _refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
 
-    private val _events = eventRepository.getEvents()
-        .flowOn(dispatcher.io)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-
     private val _eventsFlow = _refreshTrigger.flatMapLatest {
         eventRepository.getEvents()
             .catch { e ->
@@ -46,11 +42,9 @@ class ListViewModel(
         .flowOn(dispatcher.io)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    private val _listScreenState = MutableStateFlow<ListScreenState>(ListScreenState.Loading)
-    //val listScreenState = _listScreenState.asStateFlow()
     val listScreenState: StateFlow<ListScreenState> = combine(
         _eventsFlow,
-        _searchQuery
+        _searchQuery,
     ) { events, query ->
         if (events == null) return@combine ListScreenState.Loading
 

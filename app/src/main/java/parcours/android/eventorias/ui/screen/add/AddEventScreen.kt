@@ -28,12 +28,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -44,7 +44,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,6 +59,7 @@ import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import parcours.android.eventorias.R
+import parcours.android.eventorias.ui.screen.error.ErrorScreen
 
 @Composable
 fun AddEventScreen(
@@ -68,7 +68,6 @@ fun AddEventScreen(
     onSaveSuccessful: () -> Unit,
 ) {
 
-    val snackbarHostState = remember { SnackbarHostState() }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val saveState by viewModel.saveState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -96,35 +95,62 @@ fun AddEventScreen(
     )
 
     LaunchedEffect(saveState) {
-        when (saveState) {
-            AddEventViewModel.SaveState.EventSaved -> onSaveSuccessful()
-            AddEventViewModel.SaveState.Idle -> {}
-            AddEventViewModel.SaveState.NetworkError ->
-                snackbarHostState.showSnackbar(getString(context, R.string.network_error))
-            AddEventViewModel.SaveState.UnknownError ->
-                snackbarHostState.showSnackbar(getString(context, R.string.unknown_error))
+        if (saveState == AddEventViewModel.SaveState.EventSaved) {
+            onSaveSuccessful()
         }
     }
 
-    AddEventScreenContent(
-        uiState = uiState,
-        onBackClick = onBackClick,
-        onTitleChange = viewModel::updateTitle,
-        onDescriptionChange = viewModel::updateDescription,
-        onLocationChange = viewModel::updateLocation,
-        onDateChange = viewModel::updateDate,
-        onHourChange = viewModel::updateHour,
-        onMinuteChange = viewModel::updateMinute,
-        onOpenCameraClick = {
-            val uri = viewModel.generateImageUri(context)
-            capturedUri = uri
-            cameraLauncher.launch(uri)
-        },
-        onSelectPhotoClick = {
-            photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-        },
-        onValidateClick = viewModel::addEvent,
-    )
+    when (saveState) {
+        is AddEventViewModel.SaveState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp)
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+        }
+
+        is AddEventViewModel.SaveState.NetworkError -> {
+            ErrorScreen(
+                errorMessage = getString(context, R.string.network_error),
+                onRetry = { viewModel.resetSaveState() }
+            )
+        }
+
+        is AddEventViewModel.SaveState.UnknownError -> {
+            ErrorScreen(
+                errorMessage = getString(context, R.string.unknown_error),
+                onRetry = { viewModel.resetSaveState() }
+            )
+        }
+
+        else -> {
+            AddEventScreenContent(
+                uiState = uiState,
+                onBackClick = onBackClick,
+                onTitleChange = viewModel::updateTitle,
+                onDescriptionChange = viewModel::updateDescription,
+                onLocationChange = viewModel::updateLocation,
+                onDateChange = viewModel::updateDate,
+                onHourChange = viewModel::updateHour,
+                onMinuteChange = viewModel::updateMinute,
+                onOpenCameraClick = {
+                    val uri = viewModel.generateImageUri(context)
+                    capturedUri = uri
+                    cameraLauncher.launch(uri)
+                },
+                onSelectPhotoClick = {
+                    photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                },
+                onValidateClick = viewModel::addEvent,
+            )
+        }
+    }
+
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

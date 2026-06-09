@@ -65,6 +65,7 @@ import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.theme.EventoriasTheme
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -304,8 +305,8 @@ fun EventCell(
                             bottomStart = 8.dp
                         )
                     ),
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.baseline_face_24), //TODO change to an appropriate image
+                contentScale = ContentScale.FillWidth,
+                placeholder = painterResource(R.drawable.logo_only_eventorias),
             )
         }
     }
@@ -315,7 +316,8 @@ private fun formatTimestamp(timestamp: Timestamp?): String? {
     if (timestamp == null) return null
     val locale = Locale.getDefault()
     val date = timestamp.toDate()
-    val formatter = SimpleDateFormat("MMMM d, yyyy", locale)    // TODO localize?
+
+    val formatter = DateFormat.getDateInstance(DateFormat.LONG, locale)
     return formatter.format(date)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 }
