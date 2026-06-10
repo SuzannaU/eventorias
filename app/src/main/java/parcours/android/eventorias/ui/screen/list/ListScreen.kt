@@ -63,7 +63,9 @@ import coil.compose.AsyncImage
 import com.google.firebase.Timestamp
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.ui.screen.LIST_ROUTE
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
+import parcours.android.eventorias.ui.screen.profile.ProfileBottomBar
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -166,25 +168,11 @@ fun ListScreen(
             }
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.background,
-                contentColor = MaterialTheme.colorScheme.onBackground,
-            ) {
-                Spacer(Modifier.weight(1f))
-                NavigationBarItem(
-                    selected = true,
-                    onClick = { },
-                    icon = { Icon(Icons.Default.Event, contentDescription = null) },
-                    label = { Text(stringResource(R.string.events)) },
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { onProfileClick() },
-                    icon = { Icon(Icons.Outlined.Person, contentDescription = null) },
-                    label = { Text(stringResource(R.string.profile)) },
-                )
-                Spacer(Modifier.weight(1f))
-            }
+            ProfileBottomBar(
+                currentRoute = LIST_ROUTE,
+                onEventsClick = {},
+                onProfileClick = onProfileClick,
+            )
         },
     ) { paddingValues ->
         Box(

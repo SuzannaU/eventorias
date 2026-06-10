@@ -32,4 +32,6 @@
     <string name="name">Name</string>
     <string name="email">E-mail</string>
     <string name="notifications">Notifications</string>
+    <string name="user_not_found">User Not Found</string>
+    <string name="profile_picture">Profile Picture</string>
 </resources>

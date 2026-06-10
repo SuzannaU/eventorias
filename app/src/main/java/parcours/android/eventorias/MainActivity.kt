@@ -6,8 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,8 +21,10 @@ import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import parcours.android.eventorias.ui.screen.ADD_ROUTE
+import parcours.android.eventorias.ui.screen.LIST_ROUTE
+import parcours.android.eventorias.ui.screen.PROFILE_ROUTE
 import parcours.android.eventorias.ui.screen.add.AddEventScreen
-import parcours.android.eventorias.ui.screen.add.AddEventViewModel
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.screen.list.ListScreen
 import parcours.android.eventorias.ui.screen.profile.ProfileScreen
@@ -103,31 +103,31 @@ fun EventoriasNavHost(
 ) {
     NavHost(
         navController = navHostController,
-        startDestination = "eventList",
+        startDestination = LIST_ROUTE,
         modifier = modifier,
     ) {
-        composable(route = "eventList") {
+
+        composable(route = LIST_ROUTE) {
             ListScreen(
                 viewModel = koinViewModel(),
-                onAddClick = { navHostController.navigate("addEvent") },
+                onAddClick = { navHostController.navigate(ADD_ROUTE) },
                 onFilterClick = onFilterClick,
-                onProfileClick = { navHostController.navigate("profile") }
+                onProfileClick = { navHostController.navigate(PROFILE_ROUTE) }
             )
         }
 
-        composable(route = "addEvent") {
-            val addViewModel: AddEventViewModel = koinViewModel()
+        composable(route = ADD_ROUTE) {
             AddEventScreen(
-                viewModel = addViewModel,
+                viewModel = koinViewModel(),
                 onBackClick = { navHostController.navigateUp() },
-                onSaveSuccessful = { navHostController.navigate("eventList") }
+                onSaveSuccessful = { navHostController.navigate(LIST_ROUTE) }
             )
         }
 
-        composable(route = "profile") {
+        composable(route = PROFILE_ROUTE) {
             ProfileScreen(
                 viewModel = koinViewModel(),
-                onEventsClick = { navHostController.navigate("eventList") }
+                onEventsClick = { navHostController.navigate(LIST_ROUTE) }
             )
         }
     }

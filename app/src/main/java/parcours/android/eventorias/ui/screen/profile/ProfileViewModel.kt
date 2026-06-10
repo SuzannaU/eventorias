@@ -13,9 +13,6 @@ class ProfileViewModel(
     private val userRepository: UserRepository,
 ) : ViewModel() {
 
-    private val _user = MutableStateFlow(userRepository.getCurrentUser())
-    val user: StateFlow<User?> = _user.asStateFlow()
-
     private val _profileScreenState = MutableStateFlow<ProfileScreenState>(ProfileScreenState.Loading)
     val profileScreenState: StateFlow<ProfileScreenState> = _profileScreenState.asStateFlow()
 
