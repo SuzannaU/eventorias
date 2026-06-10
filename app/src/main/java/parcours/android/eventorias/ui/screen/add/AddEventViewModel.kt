@@ -4,12 +4,13 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.Timestamp
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import parcours.android.eventorias.data.EventRepository
 import parcours.android.eventorias.data.ImageRepository
 import parcours.android.eventorias.data.UserRepository
@@ -77,30 +78,31 @@ class AddEventViewModel(
 
     fun addEvent() {
         _saveState.value = SaveState.Loading
-        val user = userRepository.getCurrentUser()
-
-        val event = Event(
-            title = _uiState.value.title,
-            description = _uiState.value.description,
-            dateTime = mergeDateTime(),
-            location = _uiState.value.location,
-            pictureUrl = _uiState.value.uri.toString(),
-        )
-        user?.let {
-            try {
-                eventRepository.addEvent(
-                    event.copy(
-                        author = user
-                    ),
-                    pictureUri = _uiState.value.uri,
-                )
-                _saveState.value = SaveState.EventSaved
-            } catch (e: FirebaseNetworkException) {
-                _saveState.value = SaveState.NetworkError
-                Log.e("TAG", "Network Error while adding post: ${e.message}")
-            } catch (e: Exception) {
-                _saveState.value = SaveState.UnknownError
-                Log.e("TAG", "Error while adding post: ${e.message}")
+        viewModelScope.launch {
+            val user = userRepository.getCurrentUser()
+            val event = Event(
+                title = _uiState.value.title,
+                description = _uiState.value.description,
+                dateTime = mergeDateTime(),
+                location = _uiState.value.location,
+                pictureUrl = _uiState.value.uri.toString(),
+            )
+            user?.let {
+                try {
+                    eventRepository.addEvent(
+                        event.copy(
+                            author = user
+                        ),
+                        pictureUri = _uiState.value.uri,
+                    )
+                    _saveState.value = SaveState.EventSaved
+                } catch (e: FirebaseNetworkException) {
+                    _saveState.value = SaveState.NetworkError
+                    Log.e("TAG", "Network Error while adding post: ${e.message}")
+                } catch (e: Exception) {
+                    _saveState.value = SaveState.UnknownError
+                    Log.e("TAG", "Error while adding post: ${e.message}")
+                }
             }
         }
     }

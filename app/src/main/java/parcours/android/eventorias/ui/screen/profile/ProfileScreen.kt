@@ -33,7 +33,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -128,6 +127,7 @@ fun ProfileContent(
     notificationsEnabled: Boolean,
     onNotificationsToggle: (Boolean) -> Unit,
 ) {
+    
     Column(
         modifier = Modifier
             .padding(24.dp)
@@ -138,14 +138,14 @@ fun ProfileContent(
 
         ProfileField(
             label = stringResource(R.string.name),
-            value = user.username ?: "Not specified"
+            value = user.username ?: stringResource(R.string.not_specified)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         ProfileField(
             label = stringResource(R.string.email),
-            value = user.email ?: "Not specified"
+            value = user.email ?: stringResource(R.string.not_specified)
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -159,16 +159,16 @@ fun ProfileContent(
                 checked = notificationsEnabled,
                 onCheckedChange = { onNotificationsToggle(it) },
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color.White,
-                    checkedTrackColor = Color.Red,
-                    uncheckedThumbColor = Color.Gray,
-                    uncheckedTrackColor = Color.DarkGray
+                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer,
                 )
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = stringResource(R.string.notifications),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 18.sp
             )
         }
@@ -180,17 +180,20 @@ fun ProfileField(label: String, value: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF323135), RoundedCornerShape(8.dp))
+            .background(
+                MaterialTheme.colorScheme.secondaryContainer,
+                RoundedCornerShape(8.dp)
+            )
             .padding(16.dp)
     ) {
         Text(
             text = label,
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
             fontSize = 14.sp
         )
         Text(
             text = value,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium
         )

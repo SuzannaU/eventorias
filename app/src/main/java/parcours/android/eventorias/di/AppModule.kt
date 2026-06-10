@@ -2,6 +2,7 @@ package parcours.android.eventorias.di
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -19,6 +20,7 @@ val appModule = module {
     single<FirebaseAuth> { FirebaseAuth.getInstance() }
     single<FirebaseFirestore> { FirebaseFirestore.getInstance() }
     single<FirebaseStorage> { FirebaseStorage.getInstance() }
+    single<FirebaseMessaging> { FirebaseMessaging.getInstance() }
 
     single<DispatcherProvider> { DefaultDispatcherProvider() }
     single<UserRepository> { UserRepository(get(), get()) }
@@ -28,5 +30,5 @@ val appModule = module {
     viewModel { MainViewModel(get(), get()) }
     viewModel { ListViewModel(get(), get()) }
     viewModel { AddEventViewModel(get(), get(), get()) }
-    viewModel { ProfileViewModel(get()) }
+    viewModel { ProfileViewModel(get(), get()) }
 }

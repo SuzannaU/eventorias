@@ -2,35 +2,56 @@ package parcours.android.eventorias.ui.screen.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import parcours.android.eventorias.data.UserRepository
 import parcours.android.eventorias.domain.model.User
 
 class ProfileViewModel(
     private val userRepository: UserRepository,
+    private val firebaseMessaging: FirebaseMessaging,
 ) : ViewModel() {
 
-    private val _profileScreenState = MutableStateFlow<ProfileScreenState>(ProfileScreenState.Loading)
+    private val _profileScreenState =
+        MutableStateFlow<ProfileScreenState>(ProfileScreenState.Loading)
     val profileScreenState: StateFlow<ProfileScreenState> = _profileScreenState.asStateFlow()
 
+    private val _notificationsEnabled = MutableStateFlow(false)
+    val notificationsEnabled: StateFlow<Boolean> = _notificationsEnabled.asStateFlow()
+
     init {
-        val user = userRepository.getCurrentUser()
-        if (user != null) {
-            _profileScreenState.value = ProfileScreenState.UserFound(user)
-        } else {
-            _profileScreenState.value = ProfileScreenState.NoUserFound
+        loadUserProfile()
+    }
+
+    private fun loadUserProfile() {
+        viewModelScope.launch {
+            val user = userRepository.getCurrentUser()
+            if (user != null) {
+                _profileScreenState.value = ProfileScreenState.UserFound(user)
+                _notificationsEnabled.value = user.subscribed
+            } else {
+                _profileScreenState.value = ProfileScreenState.NoUserFound
+            }
         }
     }
 
-    private val _notificationsEnabled = MutableStateFlow(true)
-    val notificationsEnabled: StateFlow<Boolean> = _notificationsEnabled.asStateFlow()
-
-    fun onNotificationsToggle(enabled: Boolean) {
-        // TODO add notification logic
-        _notificationsEnabled.value = enabled
+    fun onNotificationsToggle(isEnabled: Boolean) {
+        if (isEnabled) {
+            firebaseMessaging.subscribeToTopic("all")
+            viewModelScope.launch {
+                userRepository.updateSubscriptionStatus(isEnabled)
+                _notificationsEnabled.value = isEnabled
+            }
+        } else {
+            firebaseMessaging.unsubscribeFromTopic("all")
+            viewModelScope.launch {
+                userRepository.updateSubscriptionStatus(isEnabled)
+                _notificationsEnabled.value = isEnabled
+            }
+        }
     }
 
     sealed class ProfileScreenState {
