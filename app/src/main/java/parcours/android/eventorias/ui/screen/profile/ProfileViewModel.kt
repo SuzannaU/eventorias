@@ -54,6 +54,10 @@ class ProfileViewModel(
         }
     }
 
+    fun signOut() {
+        userRepository.signOut()
+    }
+
     sealed class ProfileScreenState {
         object Loading : ProfileScreenState()
         object NoUserFound : ProfileScreenState()

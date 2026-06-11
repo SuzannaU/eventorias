@@ -54,11 +54,6 @@ class MainViewModel(
         }
     }
 
-    fun signOut() {
-        userRepository.signOut()
-    }
-
-
     data class UserAuthState(
         val isUserAuthenticated: Boolean = false,
     )

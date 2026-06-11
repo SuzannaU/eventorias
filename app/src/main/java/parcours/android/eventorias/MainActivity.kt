@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
                     } else if (userAuthState.isUserAuthenticated) {
                         EventoriasNavHost(
                             navHostController = navController,
-                            onFilterClick = { viewModel.signOut() },
+                            onFilterClick = { },
                         )
                     } else {
                         startSignInActivity()

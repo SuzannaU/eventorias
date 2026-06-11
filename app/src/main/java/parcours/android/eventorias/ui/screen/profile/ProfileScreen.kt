@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -112,7 +114,8 @@ fun ProfileScreen(
                     ProfileContent(
                         user = (uiState as ProfileViewModel.ProfileScreenState.UserFound).user,
                         notificationsEnabled = notificationsEnabled,
-                        onNotificationsToggle = { viewModel.onNotificationsToggle(it) }
+                        onNotificationsToggle = { viewModel.onNotificationsToggle(it) },
+                        onSignOutClick = { viewModel.signOut() }
                     )
 
                 }
@@ -126,6 +129,7 @@ fun ProfileContent(
     user: User,
     notificationsEnabled: Boolean,
     onNotificationsToggle: (Boolean) -> Unit,
+    onSignOutClick: () -> Unit,
 ) {
     
     Column(
@@ -170,6 +174,26 @@ fun ProfileContent(
                 text = stringResource(R.string.notifications),
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 18.sp
+            )
+        }
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = onSignOutClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 64.dp)
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            ),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.sign_out),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
