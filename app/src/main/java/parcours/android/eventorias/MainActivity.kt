@@ -58,7 +58,6 @@ class MainActivity : ComponentActivity() {
                     } else if (userAuthState.isUserAuthenticated) {
                         EventoriasNavHost(
                             navHostController = navController,
-                            onFilterClick = { },
                         )
                     } else {
                         startSignInActivity()
@@ -99,7 +98,6 @@ class MainActivity : ComponentActivity() {
 fun EventoriasNavHost(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
-    onFilterClick: () -> Unit,
 ) {
     NavHost(
         navController = navHostController,
@@ -111,7 +109,6 @@ fun EventoriasNavHost(
             ListScreen(
                 viewModel = koinViewModel(),
                 onAddClick = { navHostController.navigate(ADD_ROUTE) },
-                onFilterClick = onFilterClick,
                 onProfileClick = { navHostController.navigate(PROFILE_ROUTE) }
             )
         }

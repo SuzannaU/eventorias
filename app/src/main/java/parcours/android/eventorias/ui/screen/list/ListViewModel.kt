@@ -2,6 +2,7 @@ package parcours.android.eventorias.ui.screen.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,15 +25,27 @@ class ListViewModel(
     private val eventRepository: EventRepository,
 ) : ViewModel() {
 
+    private val _refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
+    fun onRetry() {
+        _refreshTrigger.tryEmit(Unit)
+    }
+
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
-
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
     }
 
-    private val _refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
+    private val _sortOrder = MutableStateFlow(SortOrder.DESCENDING)
+    fun toggleSortOrder() {
+        _sortOrder.value = if (_sortOrder.value == SortOrder.DESCENDING) {
+            SortOrder.ASCENDING
+        } else {
+            SortOrder.DESCENDING
+        }
+    }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val _eventsFlow = _refreshTrigger.flatMapLatest {
         eventRepository.getEvents()
             .catch { e ->
@@ -45,7 +58,8 @@ class ListViewModel(
     val listScreenState: StateFlow<ListScreenState> = combine(
         _eventsFlow,
         _searchQuery,
-    ) { events, query ->
+        _sortOrder,
+    ) { events, query, sort ->
         if (events == null) return@combine ListScreenState.Loading
 
         val filteredEvents = if (query.isEmpty()) {
@@ -54,20 +68,21 @@ class ListViewModel(
             events.filter { it.title.contains(query, ignoreCase = true) }
         }
 
+        val sortedEvents = when (sort) {
+            SortOrder.ASCENDING -> filteredEvents.sortedBy { it.dateTime }
+            SortOrder.DESCENDING -> filteredEvents.sortedByDescending { it.dateTime }
+        }
+
         when {
             events.isEmpty() -> ListScreenState.NoEvents
             filteredEvents.isEmpty() -> ListScreenState.NoResultsFound
-            else -> ListScreenState.EventsLoaded(filteredEvents)
+            else -> ListScreenState.EventsLoaded(sortedEvents)
         }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = ListScreenState.Loading
     )
-
-    fun onRetry() {
-        _refreshTrigger.tryEmit(Unit)
-    }
 
     sealed class ListScreenState {
         object Loading : ListScreenState()
@@ -83,3 +98,5 @@ class ListViewModel(
         ) : ListScreenState()
     }
 }
+
+enum class SortOrder { ASCENDING, DESCENDING, }

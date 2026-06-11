@@ -77,7 +77,6 @@ fun ListScreen(
     modifier: Modifier = Modifier,
     viewModel: ListViewModel,
     onAddClick: () -> Unit,
-    onFilterClick: () -> Unit,
     onProfileClick: () -> Unit,
 ) {
     val uiState by viewModel.listScreenState.collectAsStateWithLifecycle()
@@ -144,7 +143,7 @@ fun ListScreen(
                         )
                     }
                     IconButton(
-                        onClick = { onFilterClick() },
+                        onClick = { viewModel.toggleSortOrder() },
                         colors = IconButtonDefaults.iconButtonColors(
                             contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             disabledContentColor = MaterialTheme.colorScheme.outlineVariant,
