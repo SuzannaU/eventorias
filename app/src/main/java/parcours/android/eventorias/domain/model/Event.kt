@@ -14,4 +14,7 @@ data class Event(
     val dateTime: Timestamp? = null,
     val location: String? = null,
     val pictureUrl: String? = null,
+    val category: Category = Category.OTHER,
 ): Serializable
+
+enum class Category { ART, TECH, CHARITY, SPORT, FOOD, OTHER }

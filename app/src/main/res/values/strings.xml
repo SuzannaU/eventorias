@@ -36,4 +36,6 @@
     <string name="profile_picture">Profile Picture</string>
     <string name="not_specified">Not specified</string>
     <string name="sign_out">Sign out</string>
+    <string name="category">Category</string>
+    <string name="category_placeholder">Select a category</string>
 </resources>

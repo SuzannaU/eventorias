@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.gestures.forEach
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,10 +30,15 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -44,6 +50,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -59,6 +66,7 @@ import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import parcours.android.eventorias.R
+import parcours.android.eventorias.domain.model.Category
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 
 @Composable
@@ -133,6 +141,7 @@ fun AddEventScreen(
                 onBackClick = onBackClick,
                 onTitleChange = viewModel::updateTitle,
                 onDescriptionChange = viewModel::updateDescription,
+                onCategoryChange = viewModel::updateCategory,
                 onLocationChange = viewModel::updateLocation,
                 onDateChange = viewModel::updateDate,
                 onHourChange = viewModel::updateHour,
@@ -160,6 +169,7 @@ fun AddEventScreenContent(
     onBackClick: () -> Unit,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
+    onCategoryChange: (Category) -> Unit,
     onLocationChange: (String) -> Unit,
     onDateChange: (Long?) -> Unit,
     onHourChange: (Int) -> Unit,
@@ -236,6 +246,12 @@ fun AddEventScreenContent(
                 onValueChange = onDescriptionChange,
                 placeholder = stringResource(R.string.description_placeholder),
                 isSingleLine = false,
+            )
+
+            CategoryDropdownField(
+                label = stringResource(R.string.category),
+                selectedCategory = uiState.category,
+                onCategorySelected = onCategoryChange,
             )
 
             Row(
@@ -448,6 +464,81 @@ fun TimePickerField(
         showPicker = { showTimePicker = it },
         minHeight = minHeight,
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CategoryDropdownField(
+    label: String,
+    selectedCategory: Category?,
+    onCategorySelected: (Category) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        shape = RoundedCornerShape(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        ),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                TextField(
+                    value = selectedCategory?.name ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    placeholder = {
+                        Text(
+                            stringResource(R.string.category_placeholder),
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true)
+                        .fillMaxWidth()
+                        .offset(x = (-16).dp)
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    Category.entries.forEach { category ->
+                        DropdownMenuItem(
+                            text = { Text(text = category.name) },
+                            onClick = {
+                                onCategorySelected(category)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 //@Preview

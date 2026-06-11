@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import parcours.android.eventorias.data.EventRepository
 import parcours.android.eventorias.data.ImageRepository
 import parcours.android.eventorias.data.UserRepository
+import parcours.android.eventorias.domain.model.Category
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.domain.model.User
 import java.text.SimpleDateFormat
@@ -33,12 +34,16 @@ class AddEventViewModel(
     private val _saveState = MutableStateFlow<SaveState>(SaveState.Idle)
     val saveState = _saveState.asStateFlow()
 
-    fun updateTitle(title: String) {
-        _uiState.update { it.copy(title = title) }
+    fun updateTitle(input: String) {
+        _uiState.update { it.copy(title = input) }
     }
 
-    fun updateDescription(description: String) {
-        _uiState.update { it.copy(description = description) }
+    fun updateDescription(input: String) {
+        _uiState.update { it.copy(description = input) }
+    }
+
+    fun updateCategory(input: Category) {
+        _uiState.update { it.copy(category = input) }
     }
 
     fun updateLocation(input: String) {
@@ -83,6 +88,7 @@ class AddEventViewModel(
             val event = Event(
                 title = _uiState.value.title,
                 description = _uiState.value.description,
+                category = uiState.value.category ?: Category.OTHER,
                 dateTime = mergeDateTime(),
                 location = _uiState.value.location,
                 pictureUrl = _uiState.value.uri.toString(),
@@ -123,6 +129,7 @@ class AddEventViewModel(
         val author: User? = null,
         val title: String = "",
         val description: String = "",
+        val category: Category? = null,
         val location: String = "",
         val selectedDateMillis: Long? = null,
         val selectedHour: Int? = null,
