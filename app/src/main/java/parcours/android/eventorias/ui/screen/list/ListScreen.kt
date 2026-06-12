@@ -76,6 +76,7 @@ fun ListScreen(
     viewModel: ListViewModel,
     onAddClick: () -> Unit,
     onProfileClick: () -> Unit,
+    onEventClick: (String) -> Unit,
 ) {
 
     val uiState by viewModel.listScreenState.collectAsStateWithLifecycle()
@@ -218,7 +219,10 @@ fun ListScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(currentState.events) { event ->
-                            EventCell(event = event)
+                            EventCell(
+                                event = event,
+                                onClick = { onEventClick(event.eventId) }
+                            )
                         }
                     }
                 }
@@ -252,9 +256,11 @@ fun ListScreen(
 @Composable
 fun EventCell(
     event: Event,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
+        onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
             .height(90.dp),
@@ -324,6 +330,7 @@ fun EventCell(
     }
 }
 
+// TODO move outside of screen file
 private fun formatTimestamp(timestamp: Timestamp?): String? {
     if (timestamp == null) return null
     val locale = Locale.getDefault()
@@ -343,7 +350,8 @@ fun EventCellPreview() {
                 title = "Art exhibition",
                 dateTime = Timestamp.now(),
                 pictureUrl = "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            )
+            ),
+            onClick = {}
         )
     }
 }

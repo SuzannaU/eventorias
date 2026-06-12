@@ -108,6 +108,7 @@ fun AddEventScreen(
         }
     }
 
+    // TODO MOVE SCAFFOLD HERE - EDGETOEDGE ISSUES
     when (saveState) {
         is AddEventViewModel.SaveState.Loading -> {
             Box(

@@ -96,7 +96,7 @@ fun ProfileScreen(
                 .padding(paddingValues)
         ) {
 
-            when (uiState) {
+            when (val state = uiState) {
                 is ProfileViewModel.ProfileScreenState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -106,13 +106,13 @@ fun ProfileScreen(
                 is ProfileViewModel.ProfileScreenState.NoUserFound -> {
                     ErrorScreen(
                         errorMessage = stringResource(R.string.user_not_found),
-                        onRetry = {},
+                        onRetry = { }, //TODO reload logic
                     )
                 }
 
                 is ProfileViewModel.ProfileScreenState.UserFound -> {
                     ProfileContent(
-                        user = (uiState as ProfileViewModel.ProfileScreenState.UserFound).user,
+                        user = state.user,
                         notificationsEnabled = notificationsEnabled,
                         onNotificationsToggle = { viewModel.onNotificationsToggle(it) },
                         onSignOutClick = { viewModel.signOut() }

@@ -13,18 +13,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 import parcours.android.eventorias.ui.screen.ADD_ROUTE
+import parcours.android.eventorias.ui.screen.DETAIL_ROUTE
 import parcours.android.eventorias.ui.screen.LIST_ROUTE
 import parcours.android.eventorias.ui.screen.PROFILE_ROUTE
 import parcours.android.eventorias.ui.screen.add.AddEventScreen
+import parcours.android.eventorias.ui.screen.detail.DetailScreen
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.screen.list.ListScreen
 import parcours.android.eventorias.ui.screen.profile.ProfileScreen
@@ -109,7 +114,8 @@ fun EventoriasNavHost(
             ListScreen(
                 viewModel = koinViewModel(),
                 onAddClick = { navHostController.navigate(ADD_ROUTE) },
-                onProfileClick = { navHostController.navigate(PROFILE_ROUTE) }
+                onProfileClick = { navHostController.navigate(PROFILE_ROUTE) },
+                onEventClick = { eventId -> navHostController.navigate("detail/$eventId") }
             )
         }
 
@@ -125,6 +131,17 @@ fun EventoriasNavHost(
             ProfileScreen(
                 viewModel = koinViewModel(),
                 onEventsClick = { navHostController.navigate(LIST_ROUTE) }
+            )
+        }
+
+        composable(
+            route = DETAIL_ROUTE,
+            arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+            DetailScreen(
+                viewModel = koinViewModel { parametersOf(eventId) },
+                onBackClick = { navHostController.navigateUp() }
             )
         }
     }
