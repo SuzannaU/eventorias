@@ -21,21 +21,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -68,7 +67,6 @@ import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.screen.profile.ProfileBottomBar
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 import java.text.DateFormat
-import java.text.SimpleDateFormat
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,9 +77,12 @@ fun ListScreen(
     onAddClick: () -> Unit,
     onProfileClick: () -> Unit,
 ) {
+
     val uiState by viewModel.listScreenState.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     var isSearchMode by rememberSaveable { mutableStateOf(false) }
+    var sortDropdownDisplayed by rememberSaveable { mutableStateOf(false) }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
         modifier = modifier,
@@ -122,40 +123,64 @@ fun ListScreen(
                     }
                 )
             } else {
-            TopAppBar(
-                title = {
-                    Text(
-                        stringResource(R.string.event_list),
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                actions = {
-                    IconButton(
-                        onClick = { isSearchMode = true },
-                        colors = IconButtonDefaults.iconButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            disabledContentColor = MaterialTheme.colorScheme.outlineVariant,
+                TopAppBar(
+                    title = {
+                        Text(
+                            stringResource(R.string.event_list),
+                            fontWeight = FontWeight.Bold
                         )
-                    ) {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = stringResource(R.string.search)
-                        )
-                    }
-                    IconButton(
-                        onClick = { viewModel.toggleSortOrder() },
-                        colors = IconButtonDefaults.iconButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            disabledContentColor = MaterialTheme.colorScheme.outlineVariant,
-                        )
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.Sort,
-                            contentDescription = stringResource(R.string.sort)
-                        )
-                    }
-                },
-            )
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = { isSearchMode = true },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                disabledContentColor = MaterialTheme.colorScheme.outlineVariant,
+                            )
+                        ) {
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = stringResource(R.string.search)
+                            )
+                        }
+                        IconButton(
+                            onClick = { sortDropdownDisplayed = true },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                disabledContentColor = MaterialTheme.colorScheme.outlineVariant,
+                            )
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.Sort,
+                                contentDescription = stringResource(R.string.sort)
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = sortDropdownDisplayed,
+                            onDismissRequest = { sortDropdownDisplayed = false }
+                        ) {
+                            viewModel.sortOptions.forEachIndexed { index, label ->
+                                DropdownMenuItem(
+                                    text = { Text(label) },
+                                    onClick = {
+                                        viewModel.sortEventsBy(index)
+                                        selectedIndex = index
+                                        sortDropdownDisplayed = false
+                                    },
+                                    leadingIcon = {
+                                        if (index == selectedIndex) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = null,
+                                            )
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    },
+                )
             }
         },
         floatingActionButton = {
