@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
             .createSignInIntentBuilder()
             .setTheme(R.style.Theme_Eventorias_Login)
             .setAvailableProviders(providers)
-            .setLogo(R.drawable.logo_eventorias)
+            .setLogo(R.drawable.eventorias_full_logo)
             .build()
 
         signInLauncher.launch(signInIntent)

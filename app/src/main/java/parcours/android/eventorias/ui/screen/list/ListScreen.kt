@@ -59,9 +59,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import com.google.firebase.Timestamp
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.ui.ErrorImageBox
+import parcours.android.eventorias.ui.PlaceholderBox
+import parcours.android.eventorias.ui.formatEventDate
 import parcours.android.eventorias.ui.screen.LIST_ROUTE
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.screen.profile.ProfileBottomBar
@@ -301,7 +305,7 @@ fun EventCell(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = formatTimestamp(event.dateTime) ?: stringResource(R.string.no_date),
+                    text = event.dateTime?.formatEventDate() ?: stringResource(R.string.no_date),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -309,7 +313,7 @@ fun EventCell(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            AsyncImage(
+            SubcomposeAsyncImage(
                 model = event.pictureUrl,
                 contentDescription = null,
                 modifier = Modifier
@@ -324,21 +328,11 @@ fun EventCell(
                         )
                     ),
                 contentScale = ContentScale.FillWidth,
-                placeholder = painterResource(R.drawable.logo_only_eventorias),
+                loading = { PlaceholderBox() },
+                error = { ErrorImageBox() }
             )
         }
     }
-}
-
-// TODO move outside of screen file
-private fun formatTimestamp(timestamp: Timestamp?): String? {
-    if (timestamp == null) return null
-    val locale = Locale.getDefault()
-    val date = timestamp.toDate()
-
-    val formatter = DateFormat.getDateInstance(DateFormat.LONG, locale)
-    return formatter.format(date)
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 }
 
 @Preview

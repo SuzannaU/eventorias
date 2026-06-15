@@ -42,10 +42,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import com.google.firebase.Timestamp
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.domain.model.User
+import parcours.android.eventorias.ui.ErrorImageBox
+import parcours.android.eventorias.ui.PlaceholderBox
+import parcours.android.eventorias.ui.formatEventDate
+import parcours.android.eventorias.ui.formatEventTime
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 import java.text.DateFormat
@@ -142,7 +147,8 @@ fun DetailContent(
                 .height(340.dp)
                 .clip(RoundedCornerShape(16.dp)),
             contentScale = ContentScale.Crop,
-            placeholder = painterResource(id = R.drawable.logo_only_eventorias)
+            placeholder = painterResource(id = R.drawable.outline_photo_24),
+            error = painterResource(id = R.drawable.outline_broken_image_80)
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -161,7 +167,7 @@ fun DetailContent(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = formatEventDate(event.dateTime) ?: stringResource(R.string.no_date),
+                        text = event.dateTime?.formatEventDate() ?: stringResource(R.string.no_date),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -177,7 +183,7 @@ fun DetailContent(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = formatEventTime(event.dateTime) ?: stringResource(R.string.no_time),
+                        text = event.dateTime?.formatEventTime() ?: stringResource(R.string.no_time),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -219,36 +225,18 @@ fun DetailContent(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            AsyncImage(
-                model = R.drawable.logo_only_eventorias,
+            SubcomposeAsyncImage(
+                model = R.drawable.outline_broken_image_80,
                 contentDescription = null,
                 modifier = Modifier
                     .size(width = 140.dp, height = 80.dp)
                     .clip(RoundedCornerShape(16.dp)),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                loading = { PlaceholderBox() },
+                error = { ErrorImageBox() },
             )
         }
 
         Spacer(modifier = Modifier.height(32.dp))
     }
-}
-
-// TODO move outside of screen file
-private fun formatEventDate(timestamp: Timestamp?): String? {
-    if (timestamp == null) return null
-    val locale = Locale.getDefault()
-    val date = timestamp.toDate()
-
-    val formatter = DateFormat.getDateInstance(DateFormat.LONG, locale)
-    return formatter.format(date)
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
-}
-
-private fun formatEventTime(timestamp: Timestamp?): String? {
-    if (timestamp == null) return null
-    val locale = Locale.getDefault()
-    val date = timestamp.toDate()
-
-    val formatter = DateFormat.getTimeInstance(DateFormat.SHORT, locale)
-    return formatter.format(date)
 }
