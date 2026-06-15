@@ -70,8 +70,6 @@ import parcours.android.eventorias.ui.screen.LIST_ROUTE
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.screen.profile.ProfileBottomBar
 import parcours.android.eventorias.ui.theme.EventoriasTheme
-import java.text.DateFormat
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

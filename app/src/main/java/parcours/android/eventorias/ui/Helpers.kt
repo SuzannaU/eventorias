@@ -1,10 +1,10 @@
 package parcours.android.eventorias.ui
 
 import com.google.firebase.Timestamp
+import parcours.android.eventorias.BuildConfig
+import java.net.URLEncoder
 import java.text.DateFormat
 import java.util.Locale
-
-
 
 fun Timestamp.formatEventDate(): String {
     val locale = Locale.getDefault()
@@ -12,18 +12,7 @@ fun Timestamp.formatEventDate(): String {
 
     val formatter = DateFormat.getDateInstance(DateFormat.LONG, locale)
     return formatter.format(date)
-        //.replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 }
-
-//fun formatEventDate(timestamp: Timestamp?): String? {
-//    if (timestamp == null) return null
-//    val locale = Locale.getDefault()
-//    val date = timestamp.toDate()
-//
-//    val formatter = DateFormat.getDateInstance(DateFormat.LONG, locale)
-//    return formatter.format(date)
-//        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
-//}
 
 fun Timestamp.formatEventTime(): String {
     val locale = Locale.getDefault()
@@ -31,4 +20,18 @@ fun Timestamp.formatEventTime(): String {
 
     val formatter = DateFormat.getTimeInstance(DateFormat.SHORT, locale)
     return formatter.format(date)
+}
+
+fun getStaticMapUrl(location: String?) : String? {
+    if (location.isNullOrBlank()) return null
+
+    val apiKey = BuildConfig.MAPS_API_KEY
+    val encodedLocation = URLEncoder.encode(location, "UTF-8")
+
+    return "https://maps.googleapis.com/maps/api/staticmap?" +
+            "center=$encodedLocation" +
+            "&zoom=15" +
+            "&size=400x200" +
+            "&markers=color:red%7C$encodedLocation" +
+            "&key=$apiKey"
 }

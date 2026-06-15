@@ -41,16 +41,12 @@ class ProfileViewModel(
     fun onNotificationsToggle(isEnabled: Boolean) {
         if (isEnabled) {
             firebaseMessaging.subscribeToTopic("all")
-            viewModelScope.launch {
-                userRepository.updateSubscriptionStatus(isEnabled)
-                _notificationsEnabled.value = isEnabled
-            }
         } else {
             firebaseMessaging.unsubscribeFromTopic("all")
-            viewModelScope.launch {
-                userRepository.updateSubscriptionStatus(isEnabled)
-                _notificationsEnabled.value = isEnabled
-            }
+        }
+        viewModelScope.launch {
+            userRepository.updateSubscriptionStatus(isEnabled)
+            _notificationsEnabled.value = isEnabled
         }
     }
 

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,6 +31,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,24 +40,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
-import com.google.firebase.Timestamp
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Event
-import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.ui.ErrorImageBox
 import parcours.android.eventorias.ui.PlaceholderBox
 import parcours.android.eventorias.ui.formatEventDate
 import parcours.android.eventorias.ui.formatEventTime
+import parcours.android.eventorias.ui.getStaticMapUrl
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
-import parcours.android.eventorias.ui.theme.EventoriasTheme
-import java.text.DateFormat
-import java.util.Calendar
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -143,7 +139,7 @@ fun DetailContent(
             model = event.pictureUrl,
             contentDescription = null,
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxHeight()
                 .height(340.dp)
                 .clip(RoundedCornerShape(16.dp)),
             contentScale = ContentScale.Crop,
@@ -213,7 +209,7 @@ fun DetailContent(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Bottom,
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -225,12 +221,14 @@ fun DetailContent(
 
             Spacer(modifier = Modifier.width(16.dp))
 
+            val mapUrl = remember(event.location) { getStaticMapUrl(event.location) }
+
             SubcomposeAsyncImage(
-                model = R.drawable.outline_broken_image_80,
+                model = mapUrl,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(width = 140.dp, height = 80.dp)
-                    .clip(RoundedCornerShape(16.dp)),
+                    .size(width = 150.dp, height = 70.dp)
+                    .clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop,
                 loading = { PlaceholderBox() },
                 error = { ErrorImageBox() },
