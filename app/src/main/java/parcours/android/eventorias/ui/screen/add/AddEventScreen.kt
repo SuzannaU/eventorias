@@ -58,6 +58,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getString
@@ -227,7 +228,6 @@ fun AddEventScreenContent(
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -236,7 +236,8 @@ fun AddEventScreenContent(
                 label = stringResource(R.string.title),
                 value = uiState.title,
                 onValueChange = onTitleChange,
-                placeholder = stringResource(R.string.title_placeholder)
+                placeholder = stringResource(R.string.title_placeholder),
+                error = uiState.formErrors.titleError,
             )
 
             CustomTextField(
@@ -245,16 +246,18 @@ fun AddEventScreenContent(
                 onValueChange = onDescriptionChange,
                 placeholder = stringResource(R.string.description_placeholder),
                 isSingleLine = false,
+                error = uiState.formErrors.descriptionError,
             )
 
             CategoryDropdownField(
                 label = stringResource(R.string.category),
                 selectedCategory = uiState.category,
                 onCategorySelected = onCategoryChange,
+                error = uiState.formErrors.categoryError,
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 DatePickerField(
@@ -262,7 +265,8 @@ fun AddEventScreenContent(
                     value = uiState.formattedDate,
                     onDateValueChange = onDateChange,
                     placeholder = stringResource(R.string.date_placeholder),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    error = uiState.formErrors.dateError,
                 )
                 TimePickerField(
                     label = stringResource(R.string.time),
@@ -270,7 +274,8 @@ fun AddEventScreenContent(
                     onHourValueChange = onHourChange,
                     onMinuteValueChange = onMinuteChange,
                     placeholder = stringResource(R.string.time_placeholder),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    error = uiState.formErrors.timeError,
                 )
             }
 
@@ -278,7 +283,8 @@ fun AddEventScreenContent(
                 label = stringResource(R.string.address),
                 value = uiState.location,
                 onValueChange = onLocationChange,
-                placeholder = stringResource(R.string.address_placeholder)
+                placeholder = stringResource(R.string.address_placeholder),
+                error = uiState.formErrors.locationError,
             )
 
             if (uiState.uri != null) {
@@ -344,13 +350,14 @@ fun CustomTextField(
     modifier: Modifier = Modifier,
     minHeight: Dp = 0.dp,
     isSingleLine: Boolean = true,
+    error: String? = null,
 ) {
     Card(
         shape = RoundedCornerShape(4.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth().padding(top = 16.dp)
     ) {
         Column(
             modifier = Modifier
@@ -378,6 +385,7 @@ fun CustomTextField(
                         style = MaterialTheme.typography.bodyLarge
                     )
                 },
+                isError = error != null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .offset(x = (-16).dp),
@@ -387,14 +395,24 @@ fun CustomTextField(
                     disabledContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
+                    errorContainerColor = Color.Transparent,
                     cursorColor = Color.White,
                     focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
+                    unfocusedTextColor = Color.White,
                 ),
                 singleLine = isSingleLine,
                 maxLines = maxLines,
             )
         }
+    }
+    if (error != null) {
+        Text(
+            text = error,
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(start = 4.dp, top = 0.dp).fillMaxWidth()
+        )
     }
 }
 
@@ -405,7 +423,8 @@ fun DatePickerField(
     onDateValueChange: (Long?) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
-    minHeight: Dp = 0.dp
+    minHeight: Dp = 0.dp,
+    error: String? = null,
 ) {
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
 
@@ -428,6 +447,7 @@ fun DatePickerField(
         modifier = modifier,
         showPicker = { showDatePicker = it },
         minHeight = minHeight,
+        error = error,
     )
 }
 
@@ -440,7 +460,8 @@ fun TimePickerField(
     onMinuteValueChange: (Int) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
-    minHeight: Dp = 0.dp
+    minHeight: Dp = 0.dp,
+    error: String? = null,
 ) {
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
 
@@ -462,6 +483,7 @@ fun TimePickerField(
         modifier = modifier,
         showPicker = { showTimePicker = it },
         minHeight = minHeight,
+        error = error,
     )
 }
 
@@ -471,7 +493,8 @@ fun CategoryDropdownField(
     label: String,
     selectedCategory: Category?,
     onCategorySelected: (Category) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    error: String? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -480,7 +503,7 @@ fun CategoryDropdownField(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth().padding(top = 16.dp),
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
@@ -506,6 +529,7 @@ fun CategoryDropdownField(
                             style = MaterialTheme.typography.bodyLarge,
                         )
                     },
+                    isError = error != null,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
@@ -513,11 +537,15 @@ fun CategoryDropdownField(
                         disabledContainerColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
+                        errorContainerColor = Color.Transparent,
                         focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        unfocusedTextColor = Color.White,
                     ),
                     modifier = Modifier
-                        .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable, enabled = true)
+                        .menuAnchor(
+                            type = ExposedDropdownMenuAnchorType.PrimaryEditable,
+                            enabled = true
+                        )
                         .fillMaxWidth()
                         .offset(x = (-16).dp)
                 )
@@ -537,6 +565,15 @@ fun CategoryDropdownField(
                 }
             }
         }
+    }
+    if (error != null) {
+        Text(
+            text = error,
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(start = 4.dp).fillMaxWidth()
+        )
     }
 }
 

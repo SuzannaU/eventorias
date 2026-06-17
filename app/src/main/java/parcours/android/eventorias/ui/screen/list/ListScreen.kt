@@ -317,14 +317,7 @@ fun EventCell(
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(150.dp)
-                    .clip(
-                        RoundedCornerShape(
-                            topEnd = 16.dp,
-                            bottomEnd = 16.dp,
-                            topStart = 8.dp,
-                            bottomStart = 8.dp
-                        )
-                    ),
+                    .clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.FillWidth,
                 loading = { PlaceholderBox() },
                 error = { ErrorImageBox() }

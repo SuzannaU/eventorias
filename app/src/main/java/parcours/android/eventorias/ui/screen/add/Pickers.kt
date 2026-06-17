@@ -25,6 +25,7 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import java.util.Calendar
@@ -36,48 +37,60 @@ fun PickerCard(
     placeholder: String,
     modifier: Modifier = Modifier,
     showPicker: (Boolean) -> Unit,
-    minHeight: Dp = 0.dp
+    minHeight: Dp = 0.dp,
+    error: String? = null,
 ) {
-    Card(
-        onClick = { showPicker(true) },
-        shape = RoundedCornerShape(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 8.dp)
-                .defaultMinSize(minHeight = minHeight)
+    Column(modifier = modifier.fillMaxWidth()) {
+        Card(
+            onClick = { showPicker(true) },
+            shape = RoundedCornerShape(4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+            ),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
-            TextField(
-                value = value,
-                onValueChange = { },
-                readOnly = true,
-                enabled = false,
-                placeholder = {
-                    Text(
-                        placeholder,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                },
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .offset(x = (-16).dp),
-                colors = TextFieldDefaults.colors(
-                    disabledContainerColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    disabledTextColor = Color.White,
-                    disabledPlaceholderColor = MaterialTheme.colorScheme.onSecondaryContainer
-                ),
-                singleLine = minHeight == 0.dp
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .defaultMinSize(minHeight = minHeight)
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+                TextField(
+                    value = value,
+                    onValueChange = { },
+                    readOnly = true,
+                    enabled = false,
+                    placeholder = {
+                        Text(
+                            placeholder,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(x = (-16).dp),
+                    colors = TextFieldDefaults.colors(
+                        disabledContainerColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        disabledTextColor = Color.White,
+                        disabledPlaceholderColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    ),
+                    singleLine = minHeight == 0.dp
+                )
+            }
+        }
+        if (error != null) {
+            Text(
+                text = error,
+                textAlign = TextAlign.Start,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = 4.dp, top = 4.dp)
             )
         }
     }

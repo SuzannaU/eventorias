@@ -47,7 +47,7 @@ class ListViewModel(
             1 -> _sortOption.value = SortOption.DATE_DESCENDING
             2 -> _sortOption.value = SortOption.CATEGORY_ASCENDING
             3 -> _sortOption.value = SortOption.CATEGORY_DESCENDING
-            else -> _sortOption.value = SortOption.DATE_DESCENDING
+            else -> _sortOption.value = SortOption.DATE_ASCENDING
         }
     }
 
@@ -78,8 +78,8 @@ class ListViewModel(
         val sortedEvents = when (sortOption) {
             SortOption.DATE_ASCENDING -> filteredEvents.sortedBy { it.dateTime }
             SortOption.DATE_DESCENDING -> filteredEvents.sortedByDescending { it.dateTime }
-            SortOption.CATEGORY_ASCENDING -> filteredEvents.sortedBy { it.category }
-            SortOption.CATEGORY_DESCENDING -> filteredEvents.sortedByDescending { it.category }
+            SortOption.CATEGORY_ASCENDING -> filteredEvents.sortedBy { it.category.name }
+            SortOption.CATEGORY_DESCENDING -> filteredEvents.sortedByDescending { it.category.name }
         }
 
         when {
