@@ -111,7 +111,7 @@ fun DetailScreen(
                 is DetailViewModel.DetailUiState.Error -> {
                     ErrorScreen(
                         errorMessage = state.errorMessage,
-                        onRetry = { }, //TODO reload logic
+                        onRetry = { viewModel.loadEvent() },
                     )
                 }
             }

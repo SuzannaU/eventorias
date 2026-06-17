@@ -20,7 +20,7 @@ class DetailViewModel(
         loadEvent()
     }
 
-    private fun loadEvent() {
+    fun loadEvent() {
         viewModelScope.launch {
             _uiState.value = DetailUiState.Loading
             val event = eventRepository.getEventById(eventId)

@@ -106,7 +106,7 @@ fun ProfileScreen(
                 is ProfileViewModel.ProfileScreenState.NoUserFound -> {
                     ErrorScreen(
                         errorMessage = stringResource(R.string.user_not_found),
-                        onRetry = { }, //TODO reload logic
+                        onRetry = { viewModel.loadUserProfile() },
                     )
                 }
 

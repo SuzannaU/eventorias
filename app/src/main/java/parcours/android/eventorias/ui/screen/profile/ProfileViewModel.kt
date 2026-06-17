@@ -26,7 +26,7 @@ class ProfileViewModel(
         loadUserProfile()
     }
 
-    private fun loadUserProfile() {
+    fun loadUserProfile() {
         viewModelScope.launch {
             val user = userRepository.getCurrentUser()
             if (user != null) {
