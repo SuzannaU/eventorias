@@ -68,8 +68,10 @@ import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Category
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEventScreen(
+    modifier: Modifier = Modifier,
     viewModel: AddEventViewModel,
     onBackClick: () -> Unit,
     onSaveSuccessful: () -> Unit,
@@ -107,79 +109,8 @@ fun AddEventScreen(
         }
     }
 
-    // TODO MOVE SCAFFOLD HERE - EDGETOEDGE ISSUES
-    when (saveState) {
-        is AddEventViewModel.SaveState.Loading -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp)
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                )
-            }
-        }
-
-        is AddEventViewModel.SaveState.NetworkError -> {
-            ErrorScreen(
-                errorMessage = getString(context, R.string.network_error),
-                onRetry = { viewModel.resetSaveState() }
-            )
-        }
-
-        is AddEventViewModel.SaveState.UnknownError -> {
-            ErrorScreen(
-                errorMessage = getString(context, R.string.unknown_error),
-                onRetry = { viewModel.resetSaveState() }
-            )
-        }
-
-        else -> {
-            AddEventScreenContent(
-                uiState = uiState,
-                onBackClick = onBackClick,
-                onTitleChange = viewModel::updateTitle,
-                onDescriptionChange = viewModel::updateDescription,
-                onCategoryChange = viewModel::updateCategory,
-                onLocationChange = viewModel::updateLocation,
-                onDateChange = viewModel::updateDate,
-                onHourChange = viewModel::updateHour,
-                onMinuteChange = viewModel::updateMinute,
-                onOpenCameraClick = {
-                    val uri = viewModel.generateImageUri(context)
-                    capturedUri = uri
-                    cameraLauncher.launch(uri)
-                },
-                onSelectPhotoClick = {
-                    photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                },
-                onValidateClick = viewModel::addEvent,
-            )
-        }
-    }
-
-
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddEventScreenContent(
-    uiState: AddEventViewModel.AddEventUiState,
-    onBackClick: () -> Unit,
-    onTitleChange: (String) -> Unit,
-    onDescriptionChange: (String) -> Unit,
-    onCategoryChange: (Category) -> Unit,
-    onLocationChange: (String) -> Unit,
-    onDateChange: (Long?) -> Unit,
-    onHourChange: (Int) -> Unit,
-    onMinuteChange: (Int) -> Unit,
-    onOpenCameraClick: () -> Unit,
-    onSelectPhotoClick: () -> Unit,
-    onValidateClick: () -> Unit,
-) {
-
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = {
@@ -205,28 +136,86 @@ fun AddEventScreenContent(
                 )
             )
         },
-        bottomBar = {
-            Button(
-                onClick = onValidateClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .height(56.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
-            ) {
-                Text(stringResource(R.string.validate), fontWeight = FontWeight.Bold)
-            }
-        },
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
+        ) {
+            when (saveState) {
+                is AddEventViewModel.SaveState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center),
+                        )
+                    }
+                }
+
+                is AddEventViewModel.SaveState.NetworkError -> {
+                    ErrorScreen(
+                        errorMessage = getString(context, R.string.network_error),
+                        onRetry = { viewModel.resetSaveState() }
+                    )
+                }
+
+                is AddEventViewModel.SaveState.UnknownError -> {
+                    ErrorScreen(
+                        errorMessage = getString(context, R.string.unknown_error),
+                        onRetry = { viewModel.resetSaveState() }
+                    )
+                }
+
+                else -> {
+                    AddEventScreenContent(
+                        uiState = uiState,
+                        onTitleChange = viewModel::updateTitle,
+                        onDescriptionChange = viewModel::updateDescription,
+                        onCategoryChange = viewModel::updateCategory,
+                        onLocationChange = viewModel::updateLocation,
+                        onDateChange = viewModel::updateDate,
+                        onHourChange = viewModel::updateHour,
+                        onMinuteChange = viewModel::updateMinute,
+                        onOpenCameraClick = {
+                            val uri = viewModel.generateImageUri(context)
+                            capturedUri = uri
+                            cameraLauncher.launch(uri)
+                        },
+                        onSelectPhotoClick = {
+                            photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        },
+                        onValidateClick = viewModel::addEvent,
+                    )
+                }
+            }
+        }
+
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddEventScreenContent(
+    uiState: AddEventViewModel.AddEventUiState,
+    onTitleChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit,
+    onCategoryChange: (Category) -> Unit,
+    onLocationChange: (String) -> Unit,
+    onDateChange: (Long?) -> Unit,
+    onHourChange: (Int) -> Unit,
+    onMinuteChange: (Int) -> Unit,
+    onOpenCameraClick: () -> Unit,
+    onSelectPhotoClick: () -> Unit,
+    onValidateClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -257,7 +246,9 @@ fun AddEventScreenContent(
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 DatePickerField(
@@ -291,7 +282,9 @@ fun AddEventScreenContent(
                 AsyncImage(
                     model = uiState.uri,
                     contentDescription = null,
-                    modifier = Modifier.size(100.dp, 100.dp),
+                    modifier = Modifier
+                        .size(100.dp, 100.dp)
+                        .padding(top = 16.dp),
                     contentScale = ContentScale.Crop,
                 )
             }
@@ -338,8 +331,24 @@ fun AddEventScreenContent(
 
             Spacer(modifier = Modifier.height(100.dp))
         }
+
+        Button(
+            onClick = onValidateClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .height(56.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+        ) {
+            Text(stringResource(R.string.validate), fontWeight = FontWeight.Bold)
+        }
     }
 }
+
 
 @Composable
 fun CustomTextField(
@@ -357,7 +366,9 @@ fun CustomTextField(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
-        modifier = modifier.fillMaxWidth().padding(top = 16.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
     ) {
         Column(
             modifier = Modifier
@@ -411,7 +422,9 @@ fun CustomTextField(
             textAlign = TextAlign.Start,
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(start = 4.dp, top = 0.dp).fillMaxWidth()
+            modifier = Modifier
+                .padding(start = 4.dp, top = 0.dp)
+                .fillMaxWidth()
         )
     }
 }
@@ -503,7 +516,9 @@ fun CategoryDropdownField(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
-        modifier = modifier.fillMaxWidth().padding(top = 16.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
@@ -572,7 +587,9 @@ fun CategoryDropdownField(
             textAlign = TextAlign.Start,
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(start = 4.dp).fillMaxWidth()
+            modifier = Modifier
+                .padding(start = 4.dp)
+                .fillMaxWidth()
         )
     }
 }
