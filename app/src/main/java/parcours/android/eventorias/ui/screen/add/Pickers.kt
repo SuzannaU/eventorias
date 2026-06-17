@@ -11,9 +11,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -23,11 +23,13 @@ import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import java.util.Calendar
 
 @Composable
@@ -101,7 +103,7 @@ fun EventDatePicker(
     onDateSelected: (Long?) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val datePickerState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
+    val datePickerState = rememberDatePickerState()
 
     DatePickerDialog(
         onDismissRequest = onDismiss,
@@ -137,15 +139,27 @@ fun EventTimePicker(
         is24Hour = true,
     )
 
-    Column {
-        TimeInput(
-            state = timePickerState,
-        )
-        Button(onClick = onDismiss) {
-            Text("Dismiss")
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                TimeInput(
+                    state = timePickerState,
+                )
+                Button(onClick = onDismiss) {
+                    Text("Dismiss")
+                }
+                Button(onClick = { onConfirm(timePickerState) }) {
+                    Text("Confirm")
+                }
+            }
+
         }
-        Button(onClick = { onConfirm(timePickerState) }) {
-            Text("Confirm")
-        }
+
     }
 }
