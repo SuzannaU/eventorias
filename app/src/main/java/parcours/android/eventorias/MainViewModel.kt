@@ -15,7 +15,8 @@ class MainViewModel(
     private val firebaseAuth: FirebaseAuth,
 ) : ViewModel() {
 
-    private val _userAuthState = MutableStateFlow(UserAuthState(isUserAuthenticated = firebaseAuth.currentUser != null))
+    private val _userAuthState =
+        MutableStateFlow(UserAuthState(isUserAuthenticated = firebaseAuth.currentUser != null))
     val userAuthState = _userAuthState.asStateFlow()
 
     private val _authNetworkState = MutableStateFlow(NetworkState())
@@ -30,7 +31,10 @@ class MainViewModel(
     private fun observeAuthState() {
         try {
             listener = FirebaseAuth.AuthStateListener {
-                _userAuthState.value = UserAuthState(isUserAuthenticated = it.currentUser != null)
+                _userAuthState.value = UserAuthState(
+                    isUserAuthenticated = it.currentUser != null,
+                    userId = it.currentUser?.uid
+                )
             }
             firebaseAuth.addAuthStateListener(listener)
             _authNetworkState.update {
@@ -56,6 +60,7 @@ class MainViewModel(
 
     data class UserAuthState(
         val isUserAuthenticated: Boolean = false,
+        val userId: String? = null,
     )
 
     data class NetworkState(

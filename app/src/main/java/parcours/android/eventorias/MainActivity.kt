@@ -10,12 +10,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.core.content.ContextCompat
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -64,7 +65,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         askNotificationPermission()
         setContent {
-            val navController = rememberNavController()
             val userAuthState by viewModel.userAuthState.collectAsStateWithLifecycle()
             val authNetworkState by viewModel.authNetworkState.collectAsStateWithLifecycle()
             EventoriasTheme {
@@ -77,9 +77,12 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     } else if (userAuthState.isUserAuthenticated) {
-                        EventoriasNavHost(
-                            navHostController = navController,
-                        )
+                        key(userAuthState.userId) {
+                            val navController = rememberNavController()
+                            EventoriasNavHost(
+                                navHostController = navController,
+                            )
+                        }
                     } else {
                         startSignInActivity()
                     }
