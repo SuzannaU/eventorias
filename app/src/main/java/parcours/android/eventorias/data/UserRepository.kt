@@ -58,20 +58,4 @@ class UserRepository(
     fun signOut() {
         firebaseAuth.signOut()
     }
-
-    suspend fun deleteAccount(): Boolean {
-        val authUser = firebaseAuth.currentUser ?: return false
-
-        try {
-            firestore.collection(USER_COLLECTION).document(authUser.uid)
-                .delete().await()
-            Log.i("TAG", "user deleted from Firestore")
-            authUser.delete().await()
-            Log.i("TAG", "user deleted from Firebase Auth")
-            return true
-        } catch (e: Exception) {
-            Log.w("TAG", "user not deleted from Auth: ${e.message}")
-            return false
-        }
-    }
 }

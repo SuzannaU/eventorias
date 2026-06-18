@@ -1,7 +1,6 @@
 package parcours.android.eventorias.data
 
 import android.net.Uri
-import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.dataObjects
@@ -37,42 +36,26 @@ class EventRepository(
         return events
     }
 
-    fun addEvent(event: Event, pictureUri: Uri?) {
+    suspend fun addEvent(event: Event, pictureUri: Uri?) {
 
         val newDocRef = firestore.collection(EVENT_COLLECTION).document()
         val generatedId = newDocRef.id
+        var eventToSave = event.copy(eventId = generatedId)
 
         if (pictureUri != null) {
-            uploadPicture(pictureUri).addOnSuccessListener { uri ->
-                val eventToSave = event.copy(
-                    eventId = generatedId,
-                    pictureUrl = uri.toString()
-                )
-                newDocRef.set(eventToSave)
-            }
-        } else {
-            val eventToSave = event.copy(
-                eventId = generatedId
-            )
-            newDocRef.set(eventToSave)
+            val downloadUri = uploadPicture(pictureUri)
+            eventToSave = event.copy(pictureUrl = downloadUri.toString())
         }
+
+        newDocRef.set(eventToSave).await()
     }
 
-    private fun uploadPicture(pictureUri: Uri): Task<Uri> {
+    private suspend fun uploadPicture(pictureUri: Uri): Uri {
 
         val uuid = UUID.randomUUID().toString()
-        val storageRef = storage.reference
-        val pictureRef = storageRef.child(PICTURE_PATH).child(uuid)
+        val pictureRef = storage.reference.child(PICTURE_PATH).child(uuid)
 
-        val uploadTask = pictureRef.putFile(pictureUri)
-        val urlTask = uploadTask.continueWithTask { task ->
-            if (!task.isSuccessful) {
-                task.exception?.let {
-                    throw it
-                }
-            }
-            pictureRef.downloadUrl
-        }
-        return urlTask
+        pictureRef.putFile(pictureUri).await()
+        return pictureRef.downloadUrl.await()
     }
 }
