@@ -163,9 +163,9 @@ fun ListScreen(
                             expanded = sortDropdownDisplayed,
                             onDismissRequest = { sortDropdownDisplayed = false }
                         ) {
-                            viewModel.sortOptions.forEachIndexed { index, label ->
+                            viewModel.sortOptions.forEachIndexed { index, labelId ->
                                 DropdownMenuItem(
-                                    text = { Text(label) },
+                                    text = { Text(stringResource(labelId)) },
                                     onClick = {
                                         viewModel.sortEventsBy(index)
                                         selectedIndex = index

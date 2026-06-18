@@ -21,6 +21,8 @@ import java.text.DateFormat
 import java.util.Calendar
 import java.util.Locale
 
+private const val TAG = "TAG AddEventViewModel"
+
 class AddEventViewModel(
     private val eventRepository: EventRepository,
     private val userRepository: UserRepository,
@@ -37,7 +39,8 @@ class AddEventViewModel(
         _uiState.update {
             it.copy(
                 title = input,
-                formErrors = it.formErrors.copy(titleError = false))
+                formErrors = it.formErrors.copy(titleError = false)
+            )
         }
     }
 
@@ -45,7 +48,8 @@ class AddEventViewModel(
         _uiState.update {
             it.copy(
                 description = input,
-                formErrors = it.formErrors.copy(descriptionError = false))
+                formErrors = it.formErrors.copy(descriptionError = false)
+            )
         }
     }
 
@@ -138,10 +142,10 @@ class AddEventViewModel(
                     _saveState.value = SaveState.EventSaved
                 } catch (e: FirebaseNetworkException) {
                     _saveState.value = SaveState.NetworkError
-                    Log.e("TAG", "Network Error while adding post: ${e.message}")
+                    Log.e(TAG, "Network Error while adding post: ${e.message}")
                 } catch (e: Exception) {
                     _saveState.value = SaveState.UnknownError
-                    Log.e("TAG", "Error while adding post: ${e.message}")
+                    Log.e(TAG, "Error while adding post: ${e.message}")
                 }
             }
         }

@@ -26,10 +26,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import parcours.android.eventorias.R
 import java.util.Calendar
 
 @Composable
@@ -112,12 +114,12 @@ fun EventDatePicker(
                 onDateSelected(datePickerState.selectedDateMillis)
                 onDismiss()
             }) {
-                Text("OK")
+                Text(stringResource(R.string.ok))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     ) {
@@ -152,10 +154,10 @@ fun EventTimePicker(
                     state = timePickerState,
                 )
                 Button(onClick = onDismiss) {
-                    Text("Dismiss")
+                    Text(stringResource(R.string.dismiss))
                 }
                 Button(onClick = { onConfirm(timePickerState) }) {
-                    Text("Confirm")
+                    Text(stringResource(R.string.confirm))
                 }
             }
 

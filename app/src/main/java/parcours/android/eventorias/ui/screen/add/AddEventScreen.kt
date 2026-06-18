@@ -66,6 +66,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Category
+import parcours.android.eventorias.ui.labelRes
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -310,7 +311,7 @@ fun AddEventScreenContent(
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             Icons.Outlined.PhotoCamera,
-                            contentDescription = "Camera",
+                            contentDescription = stringResource(R.string.open_camera),
                             tint = Color.Black
                         )
                     }
@@ -327,7 +328,7 @@ fun AddEventScreenContent(
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             Icons.Default.AttachFile,
-                            contentDescription = "Attachment",
+                            contentDescription = stringResource(R.string.open_gallery),
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
                     }
@@ -539,7 +540,7 @@ fun CategoryDropdownField(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 TextField(
-                    value = selectedCategory?.name ?: "",
+                    value = selectedCategory?.let { stringResource(it.labelRes)} ?: "",
                     onValueChange = {},
                     readOnly = true,
                     placeholder = {
@@ -575,7 +576,7 @@ fun CategoryDropdownField(
                 ) {
                     Category.entries.forEach { category ->
                         DropdownMenuItem(
-                            text = { Text(text = category.name) },
+                            text = { Text(text = stringResource(category.labelRes)) },
                             onClick = {
                                 onCategorySelected(category)
                                 expanded = false

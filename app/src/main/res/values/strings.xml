@@ -49,4 +49,21 @@
     <string name="location_is_required">Location is required</string>
     <string name="date_is_required">Date is required</string>
     <string name="time_is_required">Time is required</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="confirm">Confirm</string>
+    <string name="open_camera">Open Camera</string>
+    <string name="open_gallery">Open Gallery</string>
+    <string name="date_soonest_first">Date (Soonest first)</string>
+    <string name="date_latest_first">Date (Latest first)</string>
+    <string name="category_a_z">Category (A-Z)</string>
+    <string name="category_z_a">Category (Z-A)</string>
+    <string name="eventorias_messages">Eventorias Messages</string>
+    <string name="category_art">Art</string>
+    <string name="category_tech">Tech</string>
+    <string name="category_charity">Charity</string>
+    <string name="category_sport">Sport</string>
+    <string name="category_food">Food</string>
+    <string name="category_other">Other</string>
 </resources>

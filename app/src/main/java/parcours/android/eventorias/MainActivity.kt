@@ -41,6 +41,8 @@ import parcours.android.eventorias.ui.screen.list.ListScreen
 import parcours.android.eventorias.ui.screen.profile.ProfileScreen
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 
+private const val TAG = "TAG MainActivity"
+
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModel()
@@ -54,9 +56,9 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            Log.i("TAG", "Notification permission granted")
+            Log.i(TAG, "Notification permission granted")
         } else {
-            Log.i("TAG", "Notification permission denied")
+            Log.i(TAG, "Notification permission denied")
         }
     }
 
@@ -110,10 +112,10 @@ class MainActivity : ComponentActivity() {
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         val response = result.idpResponse
         if (result.resultCode == RESULT_OK) {
-            Log.i("TAG", "user signed in")
+            Log.i(TAG, "user signed in")
             viewModel.createUser()
         } else if (response?.error != null) {
-            Log.i("TAG", "Error while signing in: ${response.error?.message}")
+            Log.i(TAG, "Error while signing in: ${response.error?.message}")
         }
     }
 
@@ -181,6 +183,6 @@ fun EventoriasNavHost(
 error management,
 verify min SDK 24 version => OK?
 address accessibility,
-extract StringResources,
+extract StringResources => OK
 Geocoder?
 */

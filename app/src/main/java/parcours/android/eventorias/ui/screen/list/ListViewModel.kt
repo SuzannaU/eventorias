@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
+import parcours.android.eventorias.R
 import parcours.android.eventorias.data.EventRepository
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.ui.DispatcherProvider
@@ -36,10 +37,10 @@ class ListViewModel(
 
     private val _sortOption = MutableStateFlow(SortOption.DATE_ASCENDING)
     val sortOptions = listOf(
-        "Date (Soonest first)",
-        "Date (Latest first)",
-        "Category (A-Z)",
-        "Category (Z-A)",
+        R.string.date_soonest_first,
+        R.string.date_latest_first,
+        R.string.category_a_z,
+        R.string.category_z_a,
     )
     fun sortEventsBy(sortOption: Int) {
         when (sortOption) {

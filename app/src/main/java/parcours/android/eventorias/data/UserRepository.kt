@@ -8,6 +8,7 @@ import kotlinx.coroutines.tasks.await
 import parcours.android.eventorias.domain.model.User
 
 const val USER_COLLECTION = "users"
+private const val TAG = "TAG UserRepository"
 
 class UserRepository(
     private val firebaseAuth: FirebaseAuth,
@@ -31,10 +32,10 @@ class UserRepository(
         try {
             firestore.collection(USER_COLLECTION).document(uid)
                 .set(user).await()
-            Log.i("TAG", "user inserted in firestore")
+            Log.i(TAG, "user inserted in firestore")
             return true
         } catch (e: Exception) {
-            Log.w("TAG", "user NOT inserted in firestore")
+            Log.w(TAG, "user NOT inserted in firestore")
             return false
         }
     }
@@ -47,10 +48,10 @@ class UserRepository(
         try {
             firestore.collection(USER_COLLECTION).document(uid)
                 .set(updatedUser).await()
-            Log.i("TAG", "user updated in firestore")
+            Log.i(TAG, "user updated in firestore")
             return true
         } catch (e: Exception) {
-            Log.w("TAG", "user NOT inserted in firestore")
+            Log.w(TAG, "user NOT inserted in firestore")
             return false
         }
     }
