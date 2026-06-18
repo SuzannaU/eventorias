@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,6 +67,7 @@ import parcours.android.eventorias.ui.PlaceholderBox
 import parcours.android.eventorias.ui.formatEventDate
 import parcours.android.eventorias.ui.screen.LIST_ROUTE
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
+import parcours.android.eventorias.ui.screen.loading.LoadingScreen
 import parcours.android.eventorias.ui.screen.profile.ProfileBottomBar
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 
@@ -209,9 +209,7 @@ fun ListScreen(
         ) {
             when (val currentState = uiState) {
                 is ListViewModel.ListScreenState.Loading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center),
-                    )
+                    LoadingScreen()
                 }
 
                 is ListViewModel.ListScreenState.EventsLoaded -> {
@@ -230,9 +228,9 @@ fun ListScreen(
                 }
 
                 is ListViewModel.ListScreenState.NoEvents -> {
-                    Text(
-                        stringResource(R.string.no_events_found),
-                        modifier = Modifier.align(Alignment.Center),
+                    ErrorScreen(
+                        errorMessage = stringResource(R.string.no_events_found),
+                        onRetry = { viewModel.onRetry() }
                     )
                 }
 

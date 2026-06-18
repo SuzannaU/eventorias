@@ -44,7 +44,7 @@ class EventRepository(
 
         if (pictureUri != null) {
             val downloadUri = uploadPicture(pictureUri)
-            eventToSave = event.copy(pictureUrl = downloadUri.toString())
+            eventToSave = eventToSave.copy(pictureUrl = downloadUri.toString())
         }
 
         newDocRef.set(eventToSave).await()

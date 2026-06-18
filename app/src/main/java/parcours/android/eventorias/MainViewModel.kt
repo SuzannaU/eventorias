@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -15,12 +16,8 @@ class MainViewModel(
     private val firebaseAuth: FirebaseAuth,
 ) : ViewModel() {
 
-    private val _userAuthState =
-        MutableStateFlow(UserAuthState(isUserAuthenticated = firebaseAuth.currentUser != null))
-    val userAuthState = _userAuthState.asStateFlow()
-
-    private val _authNetworkState = MutableStateFlow(NetworkState())
-    val authNetworkState = _authNetworkState.asStateFlow()
+    private val _uiState = MutableStateFlow<MainUiState>(MainUiState(isLoading = true))
+    val uiState = _uiState.asStateFlow()
 
     private lateinit var listener: FirebaseAuth.AuthStateListener
 
@@ -31,19 +28,16 @@ class MainViewModel(
     private fun observeAuthState() {
         try {
             listener = FirebaseAuth.AuthStateListener {
-                _userAuthState.value = UserAuthState(
+                _uiState.value = _uiState.value.copy(
                     isUserAuthenticated = it.currentUser != null,
-                    userId = it.currentUser?.uid
+                    userId = it.currentUser?.uid,
+                    isAuthConnected = true,
+                    isLoading = false,
                 )
             }
             firebaseAuth.addAuthStateListener(listener)
-            _authNetworkState.update {
-                _authNetworkState.value.copy(isAuthConnected = true)
-            }
         } catch (e: FirebaseNetworkException) {
-            _authNetworkState.update {
-                _authNetworkState.value.copy(isAuthConnected = false)
-            }
+            _uiState.value = _uiState.value.copy(isAuthConnected = false)
         }
     }
 
@@ -54,16 +48,25 @@ class MainViewModel(
 
     fun createUser() {
         viewModelScope.launch {
-            userRepository.createUser()
+            try {
+                userRepository.createUser()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                val errorRes = when (e) {
+                    is FirebaseAuthException -> R.string.auth_error
+                    is FirebaseNetworkException -> R.string.network_error
+                    else -> R.string.unknown_error
+                }
+                _uiState.update {it.copy(errorMessageId = errorRes)}
+            }
         }
     }
 
-    data class UserAuthState(
+    data class MainUiState(
+        val isLoading: Boolean = true,
         val isUserAuthenticated: Boolean = false,
         val userId: String? = null,
-    )
-
-    data class NetworkState(
         val isAuthConnected: Boolean = false,
+        val errorMessageId: Int? = null,
     )
 }

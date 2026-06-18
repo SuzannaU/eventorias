@@ -28,7 +28,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -38,6 +37,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -67,7 +67,7 @@ import coil.compose.AsyncImage
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Category
 import parcours.android.eventorias.ui.labelRes
-import parcours.android.eventorias.ui.screen.error.ErrorScreen
+import parcours.android.eventorias.ui.screen.loading.LoadingScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,6 +80,7 @@ fun AddEventScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val saveState by viewModel.saveState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
     var capturedUri by rememberSaveable { mutableStateOf<Uri?>(null) }
@@ -107,6 +108,15 @@ fun AddEventScreen(
     LaunchedEffect(saveState) {
         if (saveState == AddEventViewModel.SaveState.EventSaved) {
             onSaveSuccessful()
+        }
+        if (saveState is AddEventViewModel.SaveState.Error) {
+            snackbarHostState.showSnackbar(
+                message = getString(
+                    context,
+                    (saveState as AddEventViewModel.SaveState.Error).messageId
+                )
+            )
+            viewModel.resetSaveState()
         }
     }
 
@@ -145,25 +155,7 @@ fun AddEventScreen(
         ) {
             when (saveState) {
                 is AddEventViewModel.SaveState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center),
-                        )
-                    }
-                }
-
-                is AddEventViewModel.SaveState.NetworkError -> {
-                    ErrorScreen(
-                        errorMessage = getString(context, R.string.network_error),
-                        onRetry = { viewModel.resetSaveState() }
-                    )
-                }
-
-                is AddEventViewModel.SaveState.UnknownError -> {
-                    ErrorScreen(
-                        errorMessage = getString(context, R.string.unknown_error),
-                        onRetry = { viewModel.resetSaveState() }
-                    )
+                    LoadingScreen()
                 }
 
                 else -> {
@@ -189,14 +181,13 @@ fun AddEventScreen(
                 }
             }
         }
-
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEventScreenContent(
-    uiState: AddEventViewModel.AddEventUiState,
+    uiState: AddEventViewModel.FromUiState,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onCategoryChange: (Category) -> Unit,
@@ -540,7 +531,7 @@ fun CategoryDropdownField(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 TextField(
-                    value = selectedCategory?.let { stringResource(it.labelRes)} ?: "",
+                    value = selectedCategory?.let { stringResource(it.labelRes) } ?: "",
                     onValueChange = {},
                     readOnly = true,
                     placeholder = {

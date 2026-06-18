@@ -38,6 +38,7 @@ import parcours.android.eventorias.ui.screen.add.AddEventScreen
 import parcours.android.eventorias.ui.screen.detail.DetailScreen
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.screen.list.ListScreen
+import parcours.android.eventorias.ui.screen.loading.LoadingScreen
 import parcours.android.eventorias.ui.screen.profile.ProfileScreen
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 
@@ -67,26 +68,45 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         askNotificationPermission()
         setContent {
-            val userAuthState by viewModel.userAuthState.collectAsStateWithLifecycle()
-            val authNetworkState by viewModel.authNetworkState.collectAsStateWithLifecycle()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             EventoriasTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    if (!authNetworkState.isAuthConnected) {
-                        ErrorScreen(
-                            errorMessage = stringResource(R.string.connexion_problem),
-                            onRetry = {
-                                startSignInActivity()
-                            }
-                        )
-                    } else if (userAuthState.isUserAuthenticated) {
-                        key(userAuthState.userId) {
-                            val navController = rememberNavController()
-                            EventoriasNavHost(
-                                navHostController = navController,
+
+                    when {
+                        uiState.errorMessageId != null -> {
+                            ErrorScreen(
+                                errorMessage = stringResource(uiState.errorMessageId!!),
+                                onRetry = {
+                                    startSignInActivity()
+                                }
                             )
                         }
-                    } else {
-                        startSignInActivity()
+
+                        uiState.isLoading -> {
+                            LoadingScreen()
+                        }
+
+                        !uiState.isAuthConnected -> {
+                            ErrorScreen(
+                                errorMessage = stringResource(R.string.auth_connexion_problem),
+                                onRetry = {
+                                    startSignInActivity()
+                                }
+                            )
+                        }
+
+                        uiState.isUserAuthenticated -> {
+                            key(uiState.userId) {
+                                val navController = rememberNavController()
+                                EventoriasNavHost(
+                                    navHostController = navController,
+                                )
+                            }
+                        }
+
+                        else -> {
+                            startSignInActivity()
+                        }
                     }
                 }
             }

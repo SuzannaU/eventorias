@@ -22,12 +22,13 @@
     <string name="time_placeholder">HH : MM</string>
     <string name="address">Address</string>
     <string name="address_placeholder">Enter full address</string>
-    <string name="network_error">Network Error</string>
-    <string name="unknown_error">Unknown Error</string>
+    <string name="network_error">No internet connection.</string>
+    <string name="firestore_error">Access denied or database error</string>
+    <string name="unknown_error">An unknown error occurred.</string>
     <string name="error">Error</string>
     <string name="try_again">Try again</string>
-    <string name="error_message">An error has occurred,\nplease try again later</string>
-    <string name="connexion_problem">Connexion problem during authentication</string>
+    <string name="error_message">An error has occurred</string>
+    <string name="auth_connexion_problem">Connexion problem during authentication</string>
     <string name="no_results_found">No results found</string>
     <string name="user_profile">User profile</string>
     <string name="name">Name</string>
@@ -66,4 +67,6 @@
     <string name="category_sport">Sport</string>
     <string name="category_food">Food</string>
     <string name="category_other">Other</string>
+    <string name="event_not_found">Event not found</string>
+    <string name="auth_error">Error during authentication</string>
 </resources>

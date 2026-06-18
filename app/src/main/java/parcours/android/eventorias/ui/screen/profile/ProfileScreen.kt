@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +46,7 @@ import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.ui.screen.LIST_ROUTE
 import parcours.android.eventorias.ui.screen.PROFILE_ROUTE
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
+import parcours.android.eventorias.ui.screen.loading.LoadingScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,9 +98,7 @@ fun ProfileScreen(
 
             when (val state = uiState) {
                 is ProfileViewModel.ProfileScreenState.Loading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center),
-                    )
+                    LoadingScreen()
                 }
 
                 is ProfileViewModel.ProfileScreenState.NoUserFound -> {
@@ -119,6 +117,8 @@ fun ProfileScreen(
                     )
 
                 }
+
+                is ProfileViewModel.ProfileScreenState.Error -> TODO()
             }
         }
     }

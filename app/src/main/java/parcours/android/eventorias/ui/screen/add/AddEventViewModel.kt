@@ -7,10 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import parcours.android.eventorias.R
 import parcours.android.eventorias.data.EventRepository
 import parcours.android.eventorias.data.ImageRepository
 import parcours.android.eventorias.data.UserRepository
@@ -29,7 +31,7 @@ class AddEventViewModel(
     private val imageRepository: ImageRepository,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(AddEventUiState())
+    private val _uiState = MutableStateFlow(FromUiState())
     val uiState = _uiState.asStateFlow()
 
     private val _saveState = MutableStateFlow<SaveState>(SaveState.Idle)
@@ -119,20 +121,20 @@ class AddEventViewModel(
 
     fun addEvent() {
         if (!validate()) return
-
         _saveState.value = SaveState.Loading
+
         viewModelScope.launch {
-            val user = userRepository.getCurrentUser()
-            val event = Event(
-                title = _uiState.value.title,
-                description = _uiState.value.description,
-                category = uiState.value.category ?: Category.OTHER,
-                dateTime = mergeDateTime(),
-                location = _uiState.value.location,
-                pictureUrl = _uiState.value.uri.toString(),
-            )
-            user?.let {
-                try {
+            try {
+                val user = userRepository.getCurrentUser()
+                val event = Event(
+                    title = _uiState.value.title,
+                    description = _uiState.value.description,
+                    category = uiState.value.category ?: Category.OTHER,
+                    dateTime = mergeDateTime(),
+                    location = _uiState.value.location,
+                    pictureUrl = _uiState.value.uri.toString(),
+                )
+                user?.let {
                     eventRepository.addEvent(
                         event.copy(
                             author = user
@@ -140,13 +142,16 @@ class AddEventViewModel(
                         pictureUri = _uiState.value.uri,
                     )
                     _saveState.value = SaveState.EventSaved
-                } catch (e: FirebaseNetworkException) {
-                    _saveState.value = SaveState.NetworkError
-                    Log.e(TAG, "Network Error while adding post: ${e.message}")
-                } catch (e: Exception) {
-                    _saveState.value = SaveState.UnknownError
-                    Log.e(TAG, "Error while adding post: ${e.message}")
                 }
+            } catch (e: FirebaseNetworkException) {
+                _saveState.value = SaveState.Error(R.string.network_error)
+                Log.e(TAG, "Network Error while adding post: ${e.message}")
+            } catch (e: FirebaseFirestoreException) {
+                _saveState.value = SaveState.Error(R.string.firestore_error)
+                Log.e(TAG, "Error while adding post: ${e.message}")
+            } catch (e: Exception) {
+                _saveState.value = SaveState.Error(R.string.unknown_error)
+                Log.e(TAG, "Error while adding post: ${e.message}")
             }
         }
     }
@@ -174,25 +179,15 @@ class AddEventViewModel(
 
         _uiState.update { it.copy(formErrors = errors) }
 
-        return titleError && titleLengthError && descriptionError && categoryError &&
-                locationError && dateError && timeError
+        return !titleError && !titleLengthError && !descriptionError && !categoryError &&
+                !locationError && !dateError && !timeError
     }
 
     fun resetSaveState() {
         _saveState.value = SaveState.Idle
     }
 
-    data class FormErrorState(
-        val titleError: Boolean = false,
-        val titleLengthError: Boolean = false,
-        val descriptionError: Boolean = false,
-        val categoryError: Boolean = false,
-        val locationError: Boolean = false,
-        val dateError: Boolean = false,
-        val timeError: Boolean = false,
-    )
-
-    data class AddEventUiState(
+    data class FromUiState(
         val author: User? = null,
         val title: String = "",
         val description: String = "",
@@ -219,11 +214,20 @@ class AddEventViewModel(
             }
     }
 
+    data class FormErrorState(
+        val titleError: Boolean = false,
+        val titleLengthError: Boolean = false,
+        val descriptionError: Boolean = false,
+        val categoryError: Boolean = false,
+        val locationError: Boolean = false,
+        val dateError: Boolean = false,
+        val timeError: Boolean = false,
+    )
+
     sealed class SaveState {
         object Idle : SaveState()
         object Loading : SaveState()
         object EventSaved : SaveState()
-        object NetworkError : SaveState()
-        object UnknownError : SaveState()
+        data class Error(val messageId: Int) : SaveState()
     }
 }

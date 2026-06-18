@@ -20,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,6 +51,7 @@ import parcours.android.eventorias.ui.formatEventDate
 import parcours.android.eventorias.ui.formatEventTime
 import parcours.android.eventorias.ui.getStaticMapUrl
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
+import parcours.android.eventorias.ui.screen.loading.LoadingScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,11 +97,7 @@ fun DetailScreen(
         ) {
             when (val state = uiState) {
                 is DetailViewModel.DetailUiState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center),
-                        )
-                    }
+                    LoadingScreen()
                 }
 
                 is DetailViewModel.DetailUiState.Success -> {
@@ -110,7 +106,7 @@ fun DetailScreen(
 
                 is DetailViewModel.DetailUiState.Error -> {
                     ErrorScreen(
-                        errorMessage = state.errorMessage,
+                        errorMessage = stringResource(state.errorMessageId),
                         onRetry = { viewModel.loadEvent() },
                     )
                 }

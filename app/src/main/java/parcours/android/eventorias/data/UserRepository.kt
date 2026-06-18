@@ -19,25 +19,18 @@ class UserRepository(
         val authUser = firebaseAuth.currentUser
         val uid = authUser?.uid ?: return null
         val user = firestore.collection(USER_COLLECTION).document(uid)
-                .get()
-                .await()
-                .toObject<User>()
+            .get()
+            .await()
+            .toObject<User>()
         return user
     }
 
-    suspend fun createUser(): Boolean {
-        val user = getCurrentUser() ?: return false
+    suspend fun createUser() {
+        val user = getCurrentUser() ?: throw Exception("Auth user not found")
         val uid = user.userId
 
-        try {
-            firestore.collection(USER_COLLECTION).document(uid)
-                .set(user).await()
-            Log.i(TAG, "user inserted in firestore")
-            return true
-        } catch (e: Exception) {
-            Log.w(TAG, "user NOT inserted in firestore")
-            return false
-        }
+        firestore.collection(USER_COLLECTION).document(uid)
+            .set(user).await()
     }
 
     suspend fun updateSubscriptionStatus(isSubscribed: Boolean): Boolean {
