@@ -226,7 +226,12 @@ fun AddEventScreenContent(
                 value = uiState.title,
                 onValueChange = onTitleChange,
                 placeholder = stringResource(R.string.title_placeholder),
-                error = uiState.formErrors.titleError,
+                error =
+                    if (uiState.formErrors.titleError) stringResource(R.string.title_is_required)
+                    else if (uiState.formErrors.titleLengthError) stringResource(
+                        R.string.title_must_be_25_characters_or_less
+                    )
+                    else null,
             )
 
             CustomTextField(
@@ -235,14 +240,14 @@ fun AddEventScreenContent(
                 onValueChange = onDescriptionChange,
                 placeholder = stringResource(R.string.description_placeholder),
                 isSingleLine = false,
-                error = uiState.formErrors.descriptionError,
+                error = if (uiState.formErrors.descriptionError) stringResource(R.string.description_is_required) else null,
             )
 
             CategoryDropdownField(
                 label = stringResource(R.string.category),
                 selectedCategory = uiState.category,
                 onCategorySelected = onCategoryChange,
-                error = uiState.formErrors.categoryError,
+                error = if (uiState.formErrors.categoryError) stringResource(R.string.category_is_required) else null,
             )
 
             Row(
@@ -257,7 +262,7 @@ fun AddEventScreenContent(
                     onDateValueChange = onDateChange,
                     placeholder = stringResource(R.string.date_placeholder),
                     modifier = Modifier.weight(1f),
-                    error = uiState.formErrors.dateError,
+                    error = if (uiState.formErrors.dateError) stringResource(R.string.date_is_required) else null,
                 )
                 TimePickerField(
                     label = stringResource(R.string.time),
@@ -266,7 +271,7 @@ fun AddEventScreenContent(
                     onMinuteValueChange = onMinuteChange,
                     placeholder = stringResource(R.string.time_placeholder),
                     modifier = Modifier.weight(1f),
-                    error = uiState.formErrors.timeError,
+                    error = if (uiState.formErrors.timeError) stringResource(R.string.time_is_required) else null,
                 )
             }
 
@@ -275,7 +280,7 @@ fun AddEventScreenContent(
                 value = uiState.location,
                 onValueChange = onLocationChange,
                 placeholder = stringResource(R.string.address_placeholder),
-                error = uiState.formErrors.locationError,
+                error = if (uiState.formErrors.locationError) stringResource(R.string.location_is_required) else null,
             )
 
             if (uiState.uri != null) {

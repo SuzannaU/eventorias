@@ -17,10 +17,9 @@ import parcours.android.eventorias.data.UserRepository
 import parcours.android.eventorias.domain.model.Category
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.domain.model.User
-import java.text.SimpleDateFormat
+import java.text.DateFormat
 import java.util.Calendar
 import java.util.Locale
-import java.util.TimeZone
 
 class AddEventViewModel(
     private val eventRepository: EventRepository,
@@ -36,32 +35,63 @@ class AddEventViewModel(
 
     fun updateTitle(input: String) {
         _uiState.update {
-            it.copy(title = input, formErrors = it.formErrors.copy(titleError = null)) }
+            it.copy(
+                title = input,
+                formErrors = it.formErrors.copy(titleError = false))
+        }
     }
 
     fun updateDescription(input: String) {
         _uiState.update {
-            it.copy(description = input, formErrors = it.formErrors.copy(descriptionError = null)) }
+            it.copy(
+                description = input,
+                formErrors = it.formErrors.copy(descriptionError = false))
+        }
     }
 
     fun updateCategory(input: Category) {
-        _uiState.update { it.copy(category = input, formErrors = it.formErrors.copy(categoryError = null)) }
+        _uiState.update {
+            it.copy(
+                category = input,
+                formErrors = it.formErrors.copy(categoryError = false)
+            )
+        }
     }
 
     fun updateLocation(input: String) {
-        _uiState.update { it.copy(location = input, formErrors = it.formErrors.copy(locationError = null)) }
+        _uiState.update {
+            it.copy(
+                location = input,
+                formErrors = it.formErrors.copy(locationError = false)
+            )
+        }
     }
 
     fun updateDate(input: Long?) {
-        _uiState.update { it.copy(selectedDateMillis = input, formErrors = it.formErrors.copy(dateError = null)) }
+        _uiState.update {
+            it.copy(
+                selectedDateMillis = input,
+                formErrors = it.formErrors.copy(dateError = false)
+            )
+        }
     }
 
     fun updateHour(input: Int) {
-        _uiState.update { it.copy(selectedHour = input, formErrors = it.formErrors.copy(timeError = null)) }
+        _uiState.update {
+            it.copy(
+                selectedHour = input,
+                formErrors = it.formErrors.copy(timeError = false)
+            )
+        }
     }
 
     fun updateMinute(input: Int) {
-        _uiState.update { it.copy(selectedMinute = input, formErrors = it.formErrors.copy(timeError = null)) }
+        _uiState.update {
+            it.copy(
+                selectedMinute = input,
+                formErrors = it.formErrors.copy(timeError = false)
+            )
+        }
     }
 
     fun updateUri(input: Uri?) {
@@ -73,7 +103,7 @@ class AddEventViewModel(
     }
 
     private fun mergeDateTime(): Timestamp {
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+        val calendar = Calendar.getInstance().apply {
             timeInMillis = _uiState.value.selectedDateMillis ?: System.currentTimeMillis()
             set(Calendar.HOUR_OF_DAY, _uiState.value.selectedHour ?: 0)
             set(Calendar.MINUTE, _uiState.value.selectedMinute ?: 0)
@@ -84,7 +114,7 @@ class AddEventViewModel(
     }
 
     fun addEvent() {
-        if(!validate()) return
+        if (!validate()) return
 
         _saveState.value = SaveState.Loading
         viewModelScope.launch {
@@ -119,19 +149,18 @@ class AddEventViewModel(
 
     private fun validate(): Boolean {
         val state = _uiState.value
-        val titleError = when {
-            state.title.isBlank() -> "Title is required"
-            state.title.length > 25 -> "Title must be 25 characters or less"
-            else -> null
-        }
-        val descriptionError = if (state.description.isBlank()) "Description is required" else null
-        val categoryError = if (state.category == null) "Category is required" else null
-        val locationError = if (state.location.isBlank()) "Location is required" else null
-        val dateError = if (state.selectedDateMillis == null) "Date is required" else null
-        val timeError = if (state.selectedHour == null) "Time is required" else null
+
+        val titleError = state.title.isBlank()
+        val titleLengthError = state.title.length > 25
+        val descriptionError = state.description.isBlank()
+        val categoryError = state.category == null
+        val locationError = state.location.isBlank()
+        val dateError = state.selectedDateMillis == null
+        val timeError = state.selectedHour == null
 
         val errors = FormErrorState(
             titleError = titleError,
+            titleLengthError = titleLengthError,
             descriptionError = descriptionError,
             categoryError = categoryError,
             locationError = locationError,
@@ -141,8 +170,8 @@ class AddEventViewModel(
 
         _uiState.update { it.copy(formErrors = errors) }
 
-        return titleError == null && descriptionError == null && categoryError == null &&
-                locationError == null && dateError == null && timeError == null
+        return titleError && titleLengthError && descriptionError && categoryError &&
+                locationError && dateError && timeError
     }
 
     fun resetSaveState() {
@@ -150,12 +179,13 @@ class AddEventViewModel(
     }
 
     data class FormErrorState(
-        val titleError: String? = null,
-        val descriptionError: String? = null,
-        val categoryError: String? = null,
-        val locationError: String? = null,
-        val dateError: String? = null,
-        val timeError: String? = null,
+        val titleError: Boolean = false,
+        val titleLengthError: Boolean = false,
+        val descriptionError: Boolean = false,
+        val categoryError: Boolean = false,
+        val locationError: Boolean = false,
+        val dateError: Boolean = false,
+        val timeError: Boolean = false,
     )
 
     data class AddEventUiState(
@@ -170,18 +200,19 @@ class AddEventViewModel(
         val uri: Uri? = null,
         val formErrors: FormErrorState = FormErrorState(),
     ) {
+
+        private val dateFormatter = DateFormat.getDateInstance(DateFormat.LONG, Locale.getDefault())
+        val formattedDate: String
+            get() = selectedDateMillis?.let {
+                dateFormatter.format(it)
+            } ?: ""
+
         val formattedTime: String
             get() = if (selectedHour != null && selectedMinute != null) {
                 String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute)
             } else {
                 ""
             }
-
-        private val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-        val formattedDate: String
-            get() = selectedDateMillis?.let {
-                dateFormatter.format(it)
-            } ?: ""
     }
 
     sealed class SaveState {

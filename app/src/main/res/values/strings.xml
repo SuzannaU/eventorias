@@ -42,4 +42,11 @@
     <string name="no_description">No description</string>
     <string name="no_location">No location</string>
     <string name="no_time">No time</string>
+    <string name="title_is_required">Title is required</string>
+    <string name="title_must_be_25_characters_or_less">Title must be 25 characters or less</string>
+    <string name="description_is_required">Description is required</string>
+    <string name="category_is_required">Category is required</string>
+    <string name="location_is_required">Location is required</string>
+    <string name="date_is_required">Date is required</string>
+    <string name="time_is_required">Time is required</string>
 </resources>
