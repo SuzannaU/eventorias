@@ -175,3 +175,12 @@ fun EventoriasNavHost(
         }
     }
 }
+
+//TODO
+/*
+error management,
+verify min SDK 24 version => OK?
+address accessibility,
+extract StringResources,
+Geocoder?
+*/
