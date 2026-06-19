@@ -363,73 +363,75 @@ fun CustomTextField(
     isSingleLine: Boolean = true,
     error: String? = null,
 ) {
-    Card(
-        shape = RoundedCornerShape(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp)
+    Column(
+        modifier = Modifier.semantics(mergeDescendants = true) {}
     ) {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 8.dp)
-                .defaultMinSize(minHeight = minHeight)
-                .semantics(mergeDescendants = true) { },
+        Card(
+            shape = RoundedCornerShape(4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+            ),
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
         ) {
-
-            var maxLines = 1
-            if (!isSingleLine) {
-                maxLines = 5
-            }
-
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
-            TextField(
-                value = value,
-                onValueChange = onValueChange,
-                placeholder = {
-                    Text(
-                        placeholder,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                },
-                isError = error != null,
+            Column(
                 modifier = Modifier
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .defaultMinSize(minHeight = minHeight),
+            ) {
+                var maxLines = 1
+                if (!isSingleLine) {
+                    maxLines = 5
+                }
+
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+                TextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    placeholder = {
+                        Text(
+                            placeholder,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    },
+                    isError = error != null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(x = (-16).dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        errorContainerColor = Color.Transparent,
+                        cursorColor = Color.White,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                    ),
+                    singleLine = isSingleLine,
+                    maxLines = maxLines,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                )
+            }
+        }
+        if (error != null) {
+            Text(
+                text = error,
+                textAlign = TextAlign.Start,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier
+                    .padding(start = 4.dp, top = 0.dp)
                     .fillMaxWidth()
-                    .offset(x = (-16).dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    errorContainerColor = Color.Transparent,
-                    cursorColor = Color.White,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                ),
-                singleLine = isSingleLine,
-                maxLines = maxLines,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             )
         }
-    }
-    if (error != null) {
-        Text(
-            text = error,
-            textAlign = TextAlign.Start,
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier
-                .padding(start = 4.dp, top = 0.dp)
-                .fillMaxWidth()
-        )
     }
 }
 
@@ -515,86 +517,89 @@ fun CategoryDropdownField(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Card(
-        shape = RoundedCornerShape(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+    Column(modifier = modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) {
+        Card(
+            shape = RoundedCornerShape(4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
         ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded },
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
             ) {
-                TextField(
-                    value = selectedCategory?.let { stringResource(it.labelRes) } ?: "",
-                    onValueChange = {},
-                    readOnly = true,
-                    placeholder = {
-                        Text(
-                            stringResource(R.string.category_placeholder),
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                    },
-                    isError = error != null,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        errorContainerColor = Color.Transparent,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                    ),
-                    modifier = Modifier
-                        .menuAnchor(
-                            type = ExposedDropdownMenuAnchorType.PrimaryEditable,
-                            enabled = true
-                        )
-                        .fillMaxWidth()
-                        .offset(x = (-16).dp)
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
-                ExposedDropdownMenu(
+                ExposedDropdownMenuBox(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onExpandedChange = { expanded = !expanded },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Category.entries.forEach { category ->
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(category.labelRes)) },
-                            onClick = {
-                                onCategorySelected(category)
-                                expanded = false
-                            }
-                        )
+                    TextField(
+                        value = selectedCategory?.let { stringResource(it.labelRes) } ?: "",
+                        onValueChange = {},
+                        readOnly = true,
+                        placeholder = {
+                            Text(
+                                stringResource(R.string.category_placeholder),
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        },
+                        isError = error != null,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            errorContainerColor = Color.Transparent,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                        ),
+                        modifier = Modifier
+                            .menuAnchor(
+                                type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                                enabled = true
+                            )
+                            .fillMaxWidth()
+                            .offset(x = (-16).dp)
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        Category.entries.forEach { category ->
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(category.labelRes)) },
+                                onClick = {
+                                    onCategorySelected(category)
+                                    expanded = false
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                            )
+                        }
                     }
                 }
             }
         }
-    }
-    if (error != null) {
-        Text(
-            text = error,
-            textAlign = TextAlign.Start,
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier
-                .padding(start = 4.dp)
-                .fillMaxWidth()
-        )
+        if (error != null) {
+            Text(
+                text = error,
+                textAlign = TextAlign.Start,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier
+                    .padding(start = 4.dp)
+                    .fillMaxWidth()
+            )
+        }
     }
 }
 

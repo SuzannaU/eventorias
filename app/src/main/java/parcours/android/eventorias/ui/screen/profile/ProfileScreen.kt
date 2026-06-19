@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -36,6 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,13 +65,17 @@ fun ProfileScreen(
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsStateWithLifecycle()
 
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .semantics { isTraversalGroup = true },
         topBar = {
             TopAppBar(
+                modifier = Modifier.semantics { traversalIndex = 1f },
                 title = {
                     Text(
-                        stringResource(R.string.user_profile),
-                        fontWeight = FontWeight.Bold
+                        text = stringResource(R.string.user_profile),
+                        modifier = Modifier.semantics { heading() },
+                        fontWeight = FontWeight.Bold,
                     )
                 },
                 actions = {
@@ -83,17 +93,28 @@ fun ProfileScreen(
             )
         },
         bottomBar = {
-            NavigationBottomBar(
-                currentRoute = PROFILE_ROUTE,
-                onEventsClick = onEventsClick,
-                onProfileClick = {}
-            )
+            Box(
+                Modifier.semantics {
+                    isTraversalGroup = true
+                    traversalIndex = 2f
+                },
+            ) {
+                NavigationBottomBar(
+                    currentRoute = PROFILE_ROUTE,
+                    onEventsClick = onEventsClick,
+                    onProfileClick = {}
+                )
+            }
         },
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .semantics {
+                    isTraversalGroup = true
+                    traversalIndex = 3f
+                },
         ) {
 
             when (val state = uiState) {
@@ -131,7 +152,7 @@ fun ProfileContent(
     onNotificationsToggle: (Boolean) -> Unit,
     onSignOutClick: () -> Unit,
 ) {
-    
+
     Column(
         modifier = Modifier
             .padding(24.dp)
@@ -155,13 +176,20 @@ fun ProfileContent(
         Spacer(modifier = Modifier.height(32.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .toggleable(
+                    value = notificationsEnabled,
+                    role = Role.Switch,
+                    onValueChange = { onNotificationsToggle(it) }
+                )
+                .semantics(mergeDescendants = true) {},
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
             Switch(
                 checked = notificationsEnabled,
-                onCheckedChange = { onNotificationsToggle(it) },
+                onCheckedChange = null,
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                     checkedTrackColor = MaterialTheme.colorScheme.primary,
@@ -209,6 +237,7 @@ fun ProfileField(label: String, value: String) {
                 RoundedCornerShape(8.dp)
             )
             .padding(16.dp)
+            .semantics(mergeDescendants = true) {}
     ) {
         Text(
             text = label,

@@ -201,6 +201,5 @@ fun EventoriasNavHost(
 
 //TODO
 /*
-address accessibility,
 Geocoder?
 */

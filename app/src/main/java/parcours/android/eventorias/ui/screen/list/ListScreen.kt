@@ -53,8 +53,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -91,10 +94,11 @@ fun ListScreen(
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.semantics { isTraversalGroup = true },
         topBar = {
             if (isSearchMode) {
                 TopAppBar(
+                    modifier = Modifier.semantics { traversalIndex = 1f },
                     title = {
                         TextField(
                             value = searchQuery,
@@ -118,7 +122,7 @@ fun ListScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = stringResource(R.string.navigate_back)
-                                        )
+                            )
                         }
                     },
                     actions = {
@@ -136,10 +140,12 @@ fun ListScreen(
                 )
             } else {
                 TopAppBar(
+                    modifier = Modifier.semantics { traversalIndex = 1f },
                     title = {
                         Text(
-                            stringResource(R.string.event_list),
-                            fontWeight = FontWeight.Bold
+                            text = stringResource(R.string.event_list),
+                            modifier = Modifier.semantics { heading() },
+                            fontWeight = FontWeight.Bold,
                         )
                     },
                     actions = {
@@ -197,6 +203,7 @@ fun ListScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
+                modifier = Modifier.semantics { traversalIndex = 3f },
                 onClick = { onAddClick() },
                 shape = RoundedCornerShape(16.dp)
             ) {
@@ -204,17 +211,51 @@ fun ListScreen(
             }
         },
         bottomBar = {
-            NavigationBottomBar(
-                currentRoute = LIST_ROUTE,
-                onEventsClick = {},
-                onProfileClick = onProfileClick,
-            )
+            Box(
+                Modifier.semantics {
+                    isTraversalGroup = true
+                    traversalIndex = 1f
+                },
+            ) {
+                NavigationBottomBar(
+                    currentRoute = LIST_ROUTE,
+                    onEventsClick = {},
+                    onProfileClick = onProfileClick,
+                )
+            }
+//            NavigationBar(
+//                modifier = Modifier.semantics {
+//                    isTraversalGroup = true
+//                    traversalIndex = 2f
+//                },
+//                containerColor = MaterialTheme.colorScheme.background,
+//                contentColor = MaterialTheme.colorScheme.onBackground,
+//            ) {
+//                Spacer(Modifier.weight(1f))
+//                NavigationBarItem(
+//                    selected = true,
+//                    onClick = {},
+//                    icon = { Icon(Icons.Default.Event, contentDescription = null) },
+//                    label = { Text(stringResource(R.string.events)) },
+//                )
+//                NavigationBarItem(
+//                    selected = false,
+//                    onClick = onProfileClick,
+//                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
+//                    label = { Text(stringResource(R.string.profile)) },
+//                )
+//                Spacer(Modifier.weight(1f))
+//            }
         },
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .semantics {
+                    isTraversalGroup = true
+                    traversalIndex = 4f
+                },
         ) {
             when (val currentState = uiState) {
                 is ListViewModel.ListScreenState.Loading -> {
