@@ -43,14 +43,13 @@ class ProfileViewModel(
                 } else {
                     _profileScreenState.value = ProfileScreenState.NoUserFound
                 }
-            } catch (e: FirebaseNetworkException) {
-                _profileScreenState.value = ProfileScreenState.Error(R.string.network_error)
-                Log.e(TAG, "Network Error while loading user profile: ${e.message}")
-            } catch (e: FirebaseFirestoreException) {
-                _profileScreenState.value = ProfileScreenState.Error(R.string.firestore_error)
-                Log.e(TAG, "Firestore Error while loading user profile: ${e.message}")
             } catch (e: Exception) {
-                _profileScreenState.value = ProfileScreenState.Error(R.string.unknown_error)
+                val errorRes = when (e) {
+                    is FirebaseNetworkException -> R.string.network_error
+                    is FirebaseFirestoreException -> R.string.firestore_error
+                    else -> R.string.unknown_error
+                }
+                _profileScreenState.value = ProfileScreenState.Error(errorRes)
                 Log.e(TAG, "Error while loading user profile: ${e.message}")
             }
         }

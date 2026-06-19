@@ -243,8 +243,7 @@ fun ListScreen(
 
                 is ListViewModel.ListScreenState.Error -> {
                     ErrorScreen(
-                        errorMessage = currentState.errorMessage
-                            ?: stringResource(R.string.error_message),
+                        errorMessage = stringResource(currentState.errorMessageRes),
                         onRetry = { viewModel.onRetry() }
                     )
                 }

@@ -1,4 +1,4 @@
-package parcours.android.eventorias
+package parcours.android.eventorias.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -30,6 +30,7 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
+import parcours.android.eventorias.R
 import parcours.android.eventorias.ui.screen.ADD_ROUTE
 import parcours.android.eventorias.ui.screen.DETAIL_ROUTE
 import parcours.android.eventorias.ui.screen.LIST_ROUTE
@@ -200,9 +201,6 @@ fun EventoriasNavHost(
 
 //TODO
 /*
-error management,
-verify min SDK 24 version => OK?
 address accessibility,
-extract StringResources => OK
 Geocoder?
 */

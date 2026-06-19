@@ -11,8 +11,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import parcours.android.eventorias.MainActivity
 import parcours.android.eventorias.R
+import parcours.android.eventorias.ui.MainActivity
 
 private const val TAG = "TAG NotificationService"
 

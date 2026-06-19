@@ -36,14 +36,13 @@ class DetailViewModel(
                 } else {
                     _uiState.value = DetailUiState.Error(R.string.event_not_found)
                 }
-            } catch (e: FirebaseNetworkException) {
-                _uiState.value = DetailUiState.Error(R.string.network_error)
-                Log.e(TAG, "Network Error while loading event $eventId: ${e.message}")
-            } catch (e: FirebaseFirestoreException) {
-                _uiState.value = DetailUiState.Error(R.string.firestore_error)
-                Log.e(TAG, "Firestore Error while loading event $eventId: ${e.message}")
             } catch (e: Exception) {
-                _uiState.value = DetailUiState.Error(R.string.unknown_error)
+                val errorRes = when (e) {
+                    is FirebaseNetworkException -> R.string.network_error
+                    is FirebaseFirestoreException -> R.string.firestore_error
+                    else -> R.string.unknown_error
+                }
+                _uiState.value = DetailUiState.Error(errorRes)
                 Log.e(TAG, "Error while loading event $eventId: ${e.message}")
             }
         }

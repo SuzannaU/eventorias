@@ -143,15 +143,14 @@ class AddEventViewModel(
                     )
                     _saveState.value = SaveState.EventSaved
                 }
-            } catch (e: FirebaseNetworkException) {
-                _saveState.value = SaveState.Error(R.string.network_error)
-                Log.e(TAG, "Network Error while adding post: ${e.message}")
-            } catch (e: FirebaseFirestoreException) {
-                _saveState.value = SaveState.Error(R.string.firestore_error)
-                Log.e(TAG, "Error while adding post: ${e.message}")
             } catch (e: Exception) {
-                _saveState.value = SaveState.Error(R.string.unknown_error)
-                Log.e(TAG, "Error while adding post: ${e.message}")
+                val errorRes = when (e) {
+                    is FirebaseNetworkException -> R.string.network_error
+                    is FirebaseFirestoreException -> R.string.firestore_error
+                    else -> R.string.unknown_error
+                }
+                _saveState.value = SaveState.Error(errorRes)
+                Log.e(TAG, "Error while adding event: ${e.message}")
             }
         }
     }

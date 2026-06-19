@@ -1,7 +1,10 @@
 package parcours.android.eventorias.ui.screen.list
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,11 +15,14 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import parcours.android.eventorias.R
 import parcours.android.eventorias.data.EventRepository
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.ui.DispatcherProvider
+
+private const val TAG = "TAG ListViewModel"
 
 class ListViewModel(
     private val dispatcher: DispatcherProvider,
@@ -42,6 +48,7 @@ class ListViewModel(
         R.string.category_a_z,
         R.string.category_z_a,
     )
+
     fun sortEventsBy(sortOption: Int) {
         when (sortOption) {
             0 -> _sortOption.value = SortOption.DATE_ASCENDING
@@ -52,23 +59,35 @@ class ListViewModel(
         }
     }
 
-
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val _eventsFlow = _refreshTrigger.flatMapLatest {
-        eventRepository.getEvents()
-            .catch { e ->
-                emit(emptyList())
-            }
-    }
+    private val _eventsFlow: StateFlow<Result<List<Event>>?> = _refreshTrigger
+        .flatMapLatest {
+            eventRepository.getEvents()
+                .map { Result.success(it) }
+                .catch { e -> emit(Result.failure(e)) }
+        }
         .flowOn(dispatcher.io)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
 
     val listScreenState: StateFlow<ListScreenState> = combine(
         _eventsFlow,
         _searchQuery,
         _sortOption,
-    ) { events, query, sortOption ->
-        if (events == null) return@combine ListScreenState.Loading
+    ) { result, query, sortOption ->
+        if (result == null) return@combine ListScreenState.Loading
+        if (result.isFailure) {
+            val exception = result.exceptionOrNull()
+            val errorRes = when (exception) {
+                is FirebaseNetworkException -> R.string.network_error
+                is FirebaseFirestoreException -> R.string.firestore_error
+                else -> R.string.unknown_error
+            }
+            Log.e(TAG, "Error while adding event: ${exception?.message}")
+            return@combine ListScreenState.Error(errorRes)
+        }
+
+        val events = result.getOrNull() ?: emptyList()
 
         val filteredEvents = if (query.isEmpty()) {
             events
@@ -100,7 +119,7 @@ class ListViewModel(
         object NoResultsFound : ListScreenState()
 
         data class Error(
-            val errorMessage: String? = null,
+            val errorMessageRes: Int,
         ) : ListScreenState()
 
         data class EventsLoaded(

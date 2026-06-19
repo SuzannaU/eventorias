@@ -1,4 +1,4 @@
-package parcours.android.eventorias
+package parcours.android.eventorias.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import parcours.android.eventorias.R
 import parcours.android.eventorias.data.UserRepository
 
 class MainViewModel(

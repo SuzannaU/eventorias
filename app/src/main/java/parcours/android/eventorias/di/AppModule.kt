@@ -6,12 +6,12 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
-import parcours.android.eventorias.MainViewModel
 import parcours.android.eventorias.data.EventRepository
 import parcours.android.eventorias.data.ImageRepository
 import parcours.android.eventorias.data.UserRepository
 import parcours.android.eventorias.ui.DefaultDispatcherProvider
 import parcours.android.eventorias.ui.DispatcherProvider
+import parcours.android.eventorias.ui.MainViewModel
 import parcours.android.eventorias.ui.screen.add.AddEventViewModel
 import parcours.android.eventorias.ui.screen.detail.DetailViewModel
 import parcours.android.eventorias.ui.screen.list.ListViewModel
