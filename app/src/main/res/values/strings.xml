@@ -69,4 +69,8 @@
     <string name="category_other">Other</string>
     <string name="event_not_found">Event not found</string>
     <string name="auth_error">Error during authentication</string>
+    <string name="clear_search">Clear search</string>
+    <string name="event_image_preview">Event image preview</string>
+    <string name="author_profile_picture">Author profile picture</string>
+    <string name="user_profile_picture">User profile picture</string>
 </resources>

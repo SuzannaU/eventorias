@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -37,6 +38,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -57,7 +59,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -114,7 +118,8 @@ fun AddEventScreen(
                 message = getString(
                     context,
                     (saveState as AddEventViewModel.SaveState.Error).messageId
-                )
+                ),
+                duration = SnackbarDuration.Short
             )
             viewModel.resetSaveState()
         }
@@ -371,6 +376,7 @@ fun CustomTextField(
             modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 8.dp)
                 .defaultMinSize(minHeight = minHeight)
+                .semantics(mergeDescendants = true) { },
         ) {
 
             var maxLines = 1
@@ -410,6 +416,7 @@ fun CustomTextField(
                 ),
                 singleLine = isSingleLine,
                 maxLines = maxLines,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             )
         }
     }

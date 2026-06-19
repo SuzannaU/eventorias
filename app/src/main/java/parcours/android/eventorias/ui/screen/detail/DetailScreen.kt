@@ -45,11 +45,11 @@ import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Event
-import parcours.android.eventorias.ui.ErrorImageBox
-import parcours.android.eventorias.ui.PlaceholderBox
 import parcours.android.eventorias.ui.formatEventDate
 import parcours.android.eventorias.ui.formatEventTime
 import parcours.android.eventorias.ui.getStaticMapUrl
+import parcours.android.eventorias.ui.screen.ErrorImageBox
+import parcours.android.eventorias.ui.screen.PlaceholderBox
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.screen.loading.LoadingScreen
 
@@ -133,7 +133,7 @@ fun DetailContent(
 
         AsyncImage(
             model = event.pictureUrl,
-            contentDescription = null,
+            contentDescription = stringResource(R.string.event_image_preview),
             modifier = Modifier
                 .fillMaxHeight()
                 .height(340.dp)

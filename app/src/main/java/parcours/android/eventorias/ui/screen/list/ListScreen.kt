@@ -52,6 +52,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,13 +65,13 @@ import coil.compose.SubcomposeAsyncImage
 import com.google.firebase.Timestamp
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Event
-import parcours.android.eventorias.ui.ErrorImageBox
-import parcours.android.eventorias.ui.PlaceholderBox
 import parcours.android.eventorias.ui.formatEventDate
+import parcours.android.eventorias.ui.screen.ErrorImageBox
 import parcours.android.eventorias.ui.screen.LIST_ROUTE
+import parcours.android.eventorias.ui.screen.PlaceholderBox
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.screen.loading.LoadingScreen
-import parcours.android.eventorias.ui.screen.profile.ProfileBottomBar
+import parcours.android.eventorias.ui.screen.profile.NavigationBottomBar
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -112,7 +115,10 @@ fun ListScreen(
                             isSearchMode = false
                             viewModel.onSearchQueryChange("")
                         }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.navigate_back)
+                                        )
                         }
                     },
                     actions = {
@@ -120,7 +126,10 @@ fun ListScreen(
                             IconButton(
                                 onClick = { viewModel.onSearchQueryChange("") },
                             ) {
-                                Icon(Icons.Default.Close, contentDescription = null)
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.clear_search)
+                                )
                             }
                         }
                     }
@@ -195,7 +204,7 @@ fun ListScreen(
             }
         },
         bottomBar = {
-            ProfileBottomBar(
+            NavigationBottomBar(
                 currentRoute = LIST_ROUTE,
                 onEventsClick = {},
                 onProfileClick = onProfileClick,
@@ -262,7 +271,8 @@ fun EventCell(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(90.dp),
+            .height(90.dp)
+            .semantics { role = Role.Button },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -276,7 +286,7 @@ fun EventCell(
 
             AsyncImage(
                 model = event.author?.pictureUrl ?: R.drawable.baseline_face_24,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.author_profile_picture),
                 modifier = Modifier
                     .size(50.dp)
                     .clip(CircleShape),
@@ -310,7 +320,7 @@ fun EventCell(
 
             SubcomposeAsyncImage(
                 model = event.pictureUrl,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.event_image_preview),
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(150.dp)

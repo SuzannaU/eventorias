@@ -1,4 +1,4 @@
-package parcours.android.eventorias.ui
+package parcours.android.eventorias.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

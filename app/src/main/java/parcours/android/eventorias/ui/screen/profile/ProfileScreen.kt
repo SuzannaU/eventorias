@@ -72,7 +72,7 @@ fun ProfileScreen(
                     val user = (uiState as? ProfileViewModel.ProfileScreenState.UserFound)?.user
                     AsyncImage(
                         model = user?.pictureUrl ?: R.drawable.baseline_face_24,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.user_profile_picture),
                         modifier = Modifier
                             .padding(end = 16.dp)
                             .size(45.dp)
@@ -83,7 +83,7 @@ fun ProfileScreen(
             )
         },
         bottomBar = {
-            ProfileBottomBar(
+            NavigationBottomBar(
                 currentRoute = PROFILE_ROUTE,
                 onEventsClick = onEventsClick,
                 onProfileClick = {}
@@ -225,7 +225,7 @@ fun ProfileField(label: String, value: String) {
 }
 
 @Composable
-fun ProfileBottomBar(
+fun NavigationBottomBar(
     currentRoute: String,
     onEventsClick: () -> Unit,
     onProfileClick: () -> Unit
