@@ -3,8 +3,6 @@ package parcours.android.eventorias.ui.screen.profile
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.FirebaseNetworkException
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,6 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import parcours.android.eventorias.R
 import parcours.android.eventorias.data.UserRepository
+import parcours.android.eventorias.domain.exceptions.DatabaseException
+import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.User
 
 private const val TAG = "TAG ProfileViewModel"
@@ -45,8 +45,8 @@ class ProfileViewModel(
                 }
             } catch (e: Exception) {
                 val errorRes = when (e) {
-                    is FirebaseNetworkException -> R.string.network_error
-                    is FirebaseFirestoreException -> R.string.firestore_error
+                    is NetworkException -> R.string.network_error
+                    is DatabaseException -> R.string.database_error
                     else -> R.string.unknown_error
                 }
                 _profileScreenState.value = ProfileScreenState.Error(errorRes)

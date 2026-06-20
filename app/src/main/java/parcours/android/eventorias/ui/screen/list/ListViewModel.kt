@@ -3,8 +3,6 @@ package parcours.android.eventorias.ui.screen.list
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.FirebaseNetworkException
-import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +17,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import parcours.android.eventorias.R
 import parcours.android.eventorias.data.EventRepository
+import parcours.android.eventorias.domain.exceptions.DatabaseException
+import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.ui.DispatcherProvider
 
@@ -79,8 +79,8 @@ class ListViewModel(
         if (result.isFailure) {
             val exception = result.exceptionOrNull()
             val errorRes = when (exception) {
-                is FirebaseNetworkException -> R.string.network_error
-                is FirebaseFirestoreException -> R.string.firestore_error
+                is NetworkException -> R.string.network_error
+                is DatabaseException -> R.string.database_error
                 else -> R.string.unknown_error
             }
             Log.e(TAG, "Error while adding event: ${exception?.message}")

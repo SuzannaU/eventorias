@@ -3,6 +3,7 @@ package parcours.android.eventorias.ui
 import android.text.TextUtils
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -18,6 +19,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import parcours.android.eventorias.data.UserRepository
+import parcours.android.eventorias.domain.exceptions.AuthException
+import parcours.android.eventorias.domain.exceptions.NetworkException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
@@ -83,19 +86,25 @@ class MainViewModelTest {
 
     @Test
     fun `createUser network failure should update errorMessageId`() = runTest {
-        io.mockk.coEvery { userRepository.createUser() } throws com.google.firebase.FirebaseNetworkException("No network")
+        coEvery { userRepository.createUser() } throws NetworkException("No network")
 
         viewModel.createUser()
 
-        assertEquals(parcours.android.eventorias.R.string.network_error, viewModel.uiState.value.errorMessageId)
+        assertEquals(
+            parcours.android.eventorias.R.string.network_error,
+            viewModel.uiState.value.errorMessageId
+        )
     }
 
     @Test
     fun `createUser auth failure should update errorMessageId`() = runTest {
-        io.mockk.coEvery { userRepository.createUser() } throws mockk<com.google.firebase.auth.FirebaseAuthException>(relaxed = true)
+        coEvery { userRepository.createUser() } throws AuthException("auth exception")
 
         viewModel.createUser()
 
-        assertEquals(parcours.android.eventorias.R.string.auth_error, viewModel.uiState.value.errorMessageId)
+        assertEquals(
+            parcours.android.eventorias.R.string.auth_error,
+            viewModel.uiState.value.errorMessageId
+        )
     }
 }

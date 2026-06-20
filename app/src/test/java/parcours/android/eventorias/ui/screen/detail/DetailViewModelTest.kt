@@ -2,8 +2,6 @@ package parcours.android.eventorias.ui.screen.detail
 
 import android.text.TextUtils
 import android.util.Log
-import com.google.firebase.FirebaseNetworkException
-import com.google.firebase.firestore.FirebaseFirestoreException
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -17,6 +15,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import parcours.android.eventorias.R
 import parcours.android.eventorias.data.EventRepository
+import parcours.android.eventorias.domain.exceptions.DatabaseException
+import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.ui.MainDispatcherExtension
 
@@ -62,7 +62,7 @@ class DetailViewModelTest {
 
     @Test
     fun `loadEvent network exception should update uiState with network error`() = runTest {
-        coEvery { eventRepository.getEventById(eventId) } throws FirebaseNetworkException("No network")
+        coEvery { eventRepository.getEventById(eventId) } throws NetworkException("No network")
 
         viewModel = DetailViewModel(eventRepository, eventId)
 
@@ -71,12 +71,12 @@ class DetailViewModelTest {
     }
 
     @Test
-    fun `loadEvent firestore exception should update uiState with firestore error`() = runTest {
-        coEvery { eventRepository.getEventById(eventId) } throws FirebaseFirestoreException("Firestore error", FirebaseFirestoreException.Code.UNKNOWN)
+    fun `loadEvent database exception should update uiState with database error`() = runTest {
+        coEvery { eventRepository.getEventById(eventId) } throws DatabaseException("Firestore error")
 
         viewModel = DetailViewModel(eventRepository, eventId)
 
         assertTrue(viewModel.uiState.value is DetailViewModel.DetailUiState.Error)
-        assertEquals(R.string.firestore_error, (viewModel.uiState.value as DetailViewModel.DetailUiState.Error).errorMessageId)
+        assertEquals(R.string.database_error, (viewModel.uiState.value as DetailViewModel.DetailUiState.Error).errorMessageId)
     }
 }

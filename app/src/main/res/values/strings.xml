@@ -23,7 +23,7 @@
     <string name="address">Address</string>
     <string name="address_placeholder">Enter full address</string>
     <string name="network_error">No internet connection.</string>
-    <string name="firestore_error">Access denied or database error</string>
+    <string name="database_error">Access denied or database error</string>
     <string name="unknown_error">An unknown error occurred.</string>
     <string name="error">Error</string>
     <string name="try_again">Try again</string>

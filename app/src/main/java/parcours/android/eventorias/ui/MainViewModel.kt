@@ -2,15 +2,15 @@ package parcours.android.eventorias.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import parcours.android.eventorias.R
 import parcours.android.eventorias.data.UserRepository
+import parcours.android.eventorias.domain.exceptions.AuthException
+import parcours.android.eventorias.domain.exceptions.NetworkException
 
 class MainViewModel(
     private val userRepository: UserRepository,
@@ -37,7 +37,7 @@ class MainViewModel(
                 )
             }
             firebaseAuth.addAuthStateListener(listener)
-        } catch (e: FirebaseNetworkException) {
+        } catch (e: NetworkException) {
             _uiState.value = _uiState.value.copy(isAuthConnected = false)
         }
     }
@@ -54,8 +54,8 @@ class MainViewModel(
             } catch (e: Exception) {
                 e.printStackTrace()
                 val errorRes = when (e) {
-                    is FirebaseAuthException -> R.string.auth_error
-                    is FirebaseNetworkException -> R.string.network_error
+                    is AuthException -> R.string.auth_error
+                    is NetworkException -> R.string.network_error
                     else -> R.string.unknown_error
                 }
                 _uiState.update {it.copy(errorMessageId = errorRes)}

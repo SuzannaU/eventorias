@@ -3,9 +3,6 @@ package parcours.android.eventorias.ui.screen.add
 import android.net.Uri
 import android.text.TextUtils
 import android.util.Log
-import android.util.SparseArray
-import com.google.firebase.FirebaseNetworkException
-import com.google.firebase.firestore.FirebaseFirestoreException
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -23,8 +20,9 @@ import parcours.android.eventorias.R
 import parcours.android.eventorias.data.EventRepository
 import parcours.android.eventorias.data.ImageRepository
 import parcours.android.eventorias.data.UserRepository
+import parcours.android.eventorias.domain.exceptions.DatabaseException
+import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Category
-import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.ui.MainDispatcherExtension
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -125,9 +123,8 @@ class AddEventViewModelTest {
         val mockUri = mockk<Uri>()
         viewModel.updateUri(mockUri)
 
-        val mockUser = mockk<User>(relaxed = true)
         coEvery { userRepository.getCurrentUser() } returns mockk(relaxed = true)
-        coEvery { eventRepository.addEvent( any(),any()) } throws FirebaseNetworkException("No network")
+        coEvery { eventRepository.addEvent(any(), any()) } throws NetworkException("No network")
 
         viewModel.addEvent()
 
@@ -140,7 +137,7 @@ class AddEventViewModelTest {
     }
 
     @Test
-    fun `addEvent firestore exception should update state with firestore error`() = runTest {
+    fun `addEvent database exception should update state with firestore error`() = runTest {
         viewModel.updateTitle("Valid Title")
         viewModel.updateDescription("Valid Description")
         viewModel.updateCategory(Category.ART)
@@ -151,12 +148,9 @@ class AddEventViewModelTest {
         val mockUri = mockk<Uri>()
         viewModel.updateUri(mockUri)
 
-        val mockArray = mockk<SparseArray<FirebaseFirestoreException.Code>>(relaxed = true)        // Necessary for FirebaseFirestoreException
-        every { mockArray.get(2) } returns FirebaseFirestoreException.Code.UNKNOWN
-
         coEvery {
-            eventRepository.addEvent( any(), any())
-        } throws FirebaseFirestoreException("Firestore error", FirebaseFirestoreException.Code.UNKNOWN)
+            eventRepository.addEvent(any(), any())
+        } throws DatabaseException("Database error")
         coEvery { userRepository.getCurrentUser() } returns mockk(relaxed = true)
 
         viewModel.addEvent()
@@ -164,7 +158,7 @@ class AddEventViewModelTest {
         coVerify { eventRepository.addEvent(any(), any()) }
         assertTrue(viewModel.saveState.value is AddEventViewModel.SaveState.Error)
         assertEquals(
-            R.string.firestore_error,
+            R.string.database_error,
             (viewModel.saveState.value as AddEventViewModel.SaveState.Error).messageId
         )
     }

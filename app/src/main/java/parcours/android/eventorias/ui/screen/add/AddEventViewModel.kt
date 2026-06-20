@@ -5,9 +5,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.Timestamp
-import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -16,6 +14,8 @@ import parcours.android.eventorias.R
 import parcours.android.eventorias.data.EventRepository
 import parcours.android.eventorias.data.ImageRepository
 import parcours.android.eventorias.data.UserRepository
+import parcours.android.eventorias.domain.exceptions.DatabaseException
+import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Category
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.domain.model.User
@@ -145,8 +145,8 @@ class AddEventViewModel(
                 }
             } catch (e: Exception) {
                 val errorRes = when (e) {
-                    is FirebaseNetworkException -> R.string.network_error
-                    is FirebaseFirestoreException -> R.string.firestore_error
+                    is NetworkException -> R.string.network_error
+                    is DatabaseException -> R.string.database_error
                     else -> R.string.unknown_error
                 }
                 _saveState.value = SaveState.Error(errorRes)

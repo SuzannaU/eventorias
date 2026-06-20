@@ -2,7 +2,6 @@ package parcours.android.eventorias.ui.screen.list
 
 import android.text.TextUtils
 import android.util.Log
-import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.Timestamp
 import io.mockk.every
 import io.mockk.mockk
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import parcours.android.eventorias.data.EventRepository
+import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Category
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.ui.DispatcherProvider
@@ -69,7 +69,7 @@ class ListViewModelTest {
     @Test
     fun `when getEvents fails, state should be Error`() = runTest {
         val flow = flow<List<Event>> {
-            throw FirebaseNetworkException("No network")
+            throw NetworkException("No network")
         }
         every { eventRepository.getEvents() } returns flow
 
