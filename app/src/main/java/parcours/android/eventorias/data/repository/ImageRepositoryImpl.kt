@@ -1,13 +1,14 @@
-package parcours.android.eventorias.data
+package parcours.android.eventorias.data.repository
 
 import android.content.Context
 import android.net.Uri
 import androidx.core.content.FileProvider
+import parcours.android.eventorias.domain.repository.ImageRepository
 import java.io.File
 
-class ImageRepository {
+class ImageRepositoryImpl : ImageRepository {
 
-    fun createImageUri(context: Context): Uri {
+    override fun createImageUri(context: Context): Uri {
         val directory = File(context.cacheDir, "camera_photos")
         if (!directory.exists()) {
             directory.mkdirs()

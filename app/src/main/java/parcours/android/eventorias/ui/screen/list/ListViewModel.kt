@@ -16,10 +16,10 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import parcours.android.eventorias.R
-import parcours.android.eventorias.data.EventRepository
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.domain.repository.EventRepository
 import parcours.android.eventorias.ui.DispatcherProvider
 
 private const val TAG = "TAG ListViewModel"

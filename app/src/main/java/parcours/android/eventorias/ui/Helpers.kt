@@ -1,12 +1,12 @@
 package parcours.android.eventorias.ui
 
 import androidx.annotation.StringRes
-import com.google.firebase.Timestamp
 import parcours.android.eventorias.BuildConfig
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Category
 import java.net.URLEncoder
 import java.text.DateFormat
+import java.util.Date
 import java.util.Locale
 
 val Category.labelRes: Int
@@ -20,20 +20,18 @@ val Category.labelRes: Int
         Category.OTHER -> R.string.category_other
     }
 
-fun Timestamp.formatEventDate(): String {
+fun Date.formatEventDate(): String {
     val locale = Locale.getDefault()
-    val date = this.toDate()
 
     val formatter = DateFormat.getDateInstance(DateFormat.LONG, locale)
-    return formatter.format(date)
+    return formatter.format(this)
 }
 
-fun Timestamp.formatEventTime(): String {
+fun Date.formatEventTime(): String {
     val locale = Locale.getDefault()
-    val date = this.toDate()
 
     val formatter = DateFormat.getTimeInstance(DateFormat.SHORT, locale)
-    return formatter.format(date)
+    return formatter.format(this)
 }
 
 fun getStaticMapUrl(location: String?) : String? {

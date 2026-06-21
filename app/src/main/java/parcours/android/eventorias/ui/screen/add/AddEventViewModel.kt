@@ -5,22 +5,22 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import parcours.android.eventorias.R
-import parcours.android.eventorias.data.EventRepository
-import parcours.android.eventorias.data.ImageRepository
-import parcours.android.eventorias.data.UserRepository
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Category
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.domain.model.User
+import parcours.android.eventorias.domain.repository.EventRepository
+import parcours.android.eventorias.domain.repository.ImageRepository
+import parcours.android.eventorias.domain.repository.UserRepository
 import java.text.DateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 private const val TAG = "TAG AddEventViewModel"
@@ -108,7 +108,7 @@ class AddEventViewModel(
         return imageRepository.createImageUri(context)
     }
 
-    private fun mergeDateTime(): Timestamp {
+    private fun mergeDateTime(): Date {
         val calendar = Calendar.getInstance().apply {
             timeInMillis = _uiState.value.selectedDateMillis ?: System.currentTimeMillis()
             set(Calendar.HOUR_OF_DAY, _uiState.value.selectedHour ?: 0)
@@ -116,7 +116,7 @@ class AddEventViewModel(
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }
-        return Timestamp(calendar.time)
+        return calendar.time
     }
 
     fun addEvent() {

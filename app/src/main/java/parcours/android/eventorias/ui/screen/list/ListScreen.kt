@@ -65,7 +65,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
-import com.google.firebase.Timestamp
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.ui.formatEventDate
@@ -76,6 +75,7 @@ import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.screen.loading.LoadingScreen
 import parcours.android.eventorias.ui.screen.profile.NavigationBottomBar
 import parcours.android.eventorias.ui.theme.EventoriasTheme
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -223,29 +223,6 @@ fun ListScreen(
                     onProfileClick = onProfileClick,
                 )
             }
-//            NavigationBar(
-//                modifier = Modifier.semantics {
-//                    isTraversalGroup = true
-//                    traversalIndex = 2f
-//                },
-//                containerColor = MaterialTheme.colorScheme.background,
-//                contentColor = MaterialTheme.colorScheme.onBackground,
-//            ) {
-//                Spacer(Modifier.weight(1f))
-//                NavigationBarItem(
-//                    selected = true,
-//                    onClick = {},
-//                    icon = { Icon(Icons.Default.Event, contentDescription = null) },
-//                    label = { Text(stringResource(R.string.events)) },
-//                )
-//                NavigationBarItem(
-//                    selected = false,
-//                    onClick = onProfileClick,
-//                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
-//                    label = { Text(stringResource(R.string.profile)) },
-//                )
-//                Spacer(Modifier.weight(1f))
-//            }
         },
     ) { paddingValues ->
         Box(
@@ -381,7 +358,7 @@ fun EventCellPreview() {
         EventCell(
             event = Event(
                 title = "Art exhibition",
-                dateTime = Timestamp.now(),
+                dateTime = Date(),
                 pictureUrl = "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             ),
             onClick = {}

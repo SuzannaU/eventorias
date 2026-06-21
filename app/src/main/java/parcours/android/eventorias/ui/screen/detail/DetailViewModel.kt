@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import parcours.android.eventorias.R
-import parcours.android.eventorias.data.EventRepository
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.domain.repository.EventRepository
 
 private const val TAG = "TAG DetailViewModel"
 

@@ -6,9 +6,20 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
-import parcours.android.eventorias.data.EventRepository
-import parcours.android.eventorias.data.ImageRepository
-import parcours.android.eventorias.data.UserRepository
+import parcours.android.eventorias.data.datasource.EventDataSource
+import parcours.android.eventorias.data.datasource.FirebaseEventDataSource
+import parcours.android.eventorias.data.datasource.FirebaseUserDataSource
+import parcours.android.eventorias.data.datasource.UserDataSource
+import parcours.android.eventorias.data.repository.FirebaseEventRepository
+import parcours.android.eventorias.data.repository.FirebaseUserRepository
+import parcours.android.eventorias.data.repository.ImageRepositoryImpl
+import parcours.android.eventorias.data.service.FcmNotificationService
+import parcours.android.eventorias.data.service.FirebaseAuthService
+import parcours.android.eventorias.domain.repository.EventRepository
+import parcours.android.eventorias.domain.repository.ImageRepository
+import parcours.android.eventorias.domain.repository.UserRepository
+import parcours.android.eventorias.domain.service.AuthService
+import parcours.android.eventorias.domain.service.NotificationService
 import parcours.android.eventorias.ui.DefaultDispatcherProvider
 import parcours.android.eventorias.ui.DispatcherProvider
 import parcours.android.eventorias.ui.MainViewModel
@@ -24,9 +35,13 @@ val appModule = module {
     single<FirebaseMessaging> { FirebaseMessaging.getInstance() }
 
     single<DispatcherProvider> { DefaultDispatcherProvider() }
-    single<UserRepository> { UserRepository(get(), get()) }
-    single<EventRepository> { EventRepository(get(), get()) }
-    single<ImageRepository> { ImageRepository() }
+    single<UserDataSource> { FirebaseUserDataSource(get(), get()) }
+    single<UserRepository> { FirebaseUserRepository(get()) }
+    single<EventDataSource> { FirebaseEventDataSource(get(), get()) }
+    single<EventRepository> { FirebaseEventRepository(get()) }
+    single<ImageRepository> { ImageRepositoryImpl() }
+    single<AuthService> { FirebaseAuthService(get()) }
+    single<NotificationService> { FcmNotificationService(get()) }
 
     viewModel { MainViewModel(get(), get()) }
     viewModel { ListViewModel(get(), get()) }

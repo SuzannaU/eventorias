@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
-import parcours.android.eventorias.data.UserRepository
+import parcours.android.eventorias.data.repository.FirebaseUserRepository
 import parcours.android.eventorias.domain.exceptions.AuthException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 
@@ -29,7 +29,7 @@ class MainViewModelTest {
     @RegisterExtension
     val mainDispatcherExtension = MainDispatcherExtension()
 
-    private val userRepository = mockk<UserRepository>(relaxed = true)
+    private val userRepository = mockk<FirebaseUserRepository>(relaxed = true)
     private val firebaseAuth = mockk<FirebaseAuth>(relaxed = true)
     private lateinit var viewModel: MainViewModel
 

@@ -17,9 +17,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import parcours.android.eventorias.R
-import parcours.android.eventorias.data.EventRepository
-import parcours.android.eventorias.data.ImageRepository
-import parcours.android.eventorias.data.UserRepository
+import parcours.android.eventorias.data.repository.FirebaseEventRepository
+import parcours.android.eventorias.data.repository.FirebaseUserRepository
+import parcours.android.eventorias.data.repository.ImageRepositoryImpl
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Category
@@ -32,9 +32,9 @@ class AddEventViewModelTest {
     @RegisterExtension
     val mainDispatcherExtension = MainDispatcherExtension()
 
-    private val eventRepository = mockk<EventRepository>(relaxed = true)
-    private val userRepository = mockk<UserRepository>(relaxed = true)
-    private val imageRepository = mockk<ImageRepository>(relaxed = true)
+    private val eventRepository = mockk<FirebaseEventRepository>(relaxed = true)
+    private val userRepository = mockk<FirebaseUserRepository>(relaxed = true)
+    private val imageRepository = mockk<ImageRepositoryImpl>(relaxed = true)
     private lateinit var viewModel: AddEventViewModel
 
     @BeforeEach

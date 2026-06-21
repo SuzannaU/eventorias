@@ -16,7 +16,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import parcours.android.eventorias.R
-import parcours.android.eventorias.data.UserRepository
+import parcours.android.eventorias.data.repository.FirebaseUserRepository
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.User
@@ -29,7 +29,7 @@ class ProfileViewModelTest {
     @RegisterExtension
     val mainDispatcherExtension = MainDispatcherExtension()
 
-    private val userRepository = mockk<UserRepository>(relaxed = true)
+    private val userRepository = mockk<FirebaseUserRepository>(relaxed = true)
     private val firebaseMessaging = mockk<FirebaseMessaging>(relaxed = true)
     private lateinit var viewModel: ProfileViewModel
 

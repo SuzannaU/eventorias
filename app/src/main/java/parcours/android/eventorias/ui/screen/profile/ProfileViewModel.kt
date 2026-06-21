@@ -3,23 +3,23 @@ package parcours.android.eventorias.ui.screen.profile
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import parcours.android.eventorias.R
-import parcours.android.eventorias.data.UserRepository
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.User
+import parcours.android.eventorias.domain.repository.UserRepository
+import parcours.android.eventorias.domain.service.NotificationService
 
 private const val TAG = "TAG ProfileViewModel"
 const val FCM_ALL_TOPICS = "all"
 
 class ProfileViewModel(
     private val userRepository: UserRepository,
-    private val firebaseMessaging: FirebaseMessaging,
+    private val notificationService: NotificationService,
 ) : ViewModel() {
 
     private val _profileScreenState =
@@ -57,9 +57,9 @@ class ProfileViewModel(
 
     fun onNotificationsToggle(isEnabled: Boolean) {
         if (isEnabled) {
-            firebaseMessaging.subscribeToTopic(FCM_ALL_TOPICS)
+            notificationService.subscribeToTopic(FCM_ALL_TOPICS)
         } else {
-            firebaseMessaging.unsubscribeFromTopic(FCM_ALL_TOPICS)
+            notificationService.unsubscribeFromTopic(FCM_ALL_TOPICS)
         }
         viewModelScope.launch {
             userRepository.updateSubscriptionStatus(isEnabled)
