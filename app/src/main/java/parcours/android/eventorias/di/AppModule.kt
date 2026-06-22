@@ -43,9 +43,9 @@ val appModule = module {
     single<AuthService> { FirebaseAuthService(get()) }
     single<NotificationService> { FcmNotificationService(get()) }
 
-    viewModel { MainViewModel(get(), get()) }
+    viewModel { MainViewModel(get(), get(), get()) }
     viewModel { ListViewModel(get(), get()) }
-    viewModel { AddEventViewModel(get(), get(), get()) }
-    viewModel { ProfileViewModel(get(), get()) }
-    viewModel { (eventId: String) -> DetailViewModel(get(), eventId) }
+    viewModel { AddEventViewModel(get(), get(), get(), get()) }
+    viewModel { ProfileViewModel(get(), get(), get()) }
+    viewModel { (eventId: String) -> DetailViewModel(get(), get(), eventId) }
 }

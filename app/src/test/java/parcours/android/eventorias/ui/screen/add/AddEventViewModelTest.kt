@@ -1,7 +1,6 @@
 package parcours.android.eventorias.ui.screen.add
 
 import android.net.Uri
-import android.text.TextUtils
 import android.util.Log
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -23,6 +22,7 @@ import parcours.android.eventorias.data.repository.ImageRepositoryImpl
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Category
+import parcours.android.eventorias.ui.DispatcherProvider
 import parcours.android.eventorias.ui.MainDispatcherExtension
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -35,17 +35,18 @@ class AddEventViewModelTest {
     private val eventRepository = mockk<FirebaseEventRepository>(relaxed = true)
     private val userRepository = mockk<FirebaseUserRepository>(relaxed = true)
     private val imageRepository = mockk<ImageRepositoryImpl>(relaxed = true)
+    private val dispatcherProvider = mockk<DispatcherProvider>()
     private lateinit var viewModel: AddEventViewModel
 
     @BeforeEach
     fun setUp() {
-        viewModel = AddEventViewModel(eventRepository, userRepository, imageRepository)
+        every { dispatcherProvider.io } returns mainDispatcherExtension.testDispatcher
+        every { dispatcherProvider.main } returns mainDispatcherExtension.testDispatcher
+
+        viewModel = AddEventViewModel(dispatcherProvider, eventRepository, userRepository, imageRepository)
 
         mockkStatic(Log::class)
         every { Log.e(any(), any()) } returns 0
-
-        mockkStatic(TextUtils::class)
-        every { TextUtils.isEmpty(any()) } returns false
     }
 
     @Test

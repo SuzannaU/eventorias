@@ -18,6 +18,7 @@ import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.domain.repository.EventRepository
 import parcours.android.eventorias.domain.repository.ImageRepository
 import parcours.android.eventorias.domain.repository.UserRepository
+import parcours.android.eventorias.ui.DispatcherProvider
 import java.text.DateFormat
 import java.util.Calendar
 import java.util.Date
@@ -26,6 +27,7 @@ import java.util.Locale
 private const val TAG = "TAG AddEventViewModel"
 
 class AddEventViewModel(
+    private val dispatcher: DispatcherProvider,
     private val eventRepository: EventRepository,
     private val userRepository: UserRepository,
     private val imageRepository: ImageRepository,
@@ -123,7 +125,7 @@ class AddEventViewModel(
         if (!validate()) return
         _saveState.value = SaveState.Loading
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher.io) {
             try {
                 val user = userRepository.getCurrentUser()
                 val event = Event(

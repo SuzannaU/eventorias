@@ -13,11 +13,13 @@ import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.domain.repository.UserRepository
 import parcours.android.eventorias.domain.service.NotificationService
+import parcours.android.eventorias.ui.DispatcherProvider
 
 private const val TAG = "TAG ProfileViewModel"
 const val FCM_ALL_TOPICS = "all"
 
 class ProfileViewModel(
+    private val dispatcher: DispatcherProvider,
     private val userRepository: UserRepository,
     private val notificationService: NotificationService,
 ) : ViewModel() {
@@ -34,7 +36,7 @@ class ProfileViewModel(
     }
 
     fun loadUserProfile() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher.io) {
             try {
                 val user = userRepository.getCurrentUser()
                 if (user != null) {
@@ -61,7 +63,7 @@ class ProfileViewModel(
         } else {
             notificationService.unsubscribeFromTopic(FCM_ALL_TOPICS)
         }
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher.io) {
             userRepository.updateSubscriptionStatus(isEnabled)
             _notificationsEnabled.value = isEnabled
         }

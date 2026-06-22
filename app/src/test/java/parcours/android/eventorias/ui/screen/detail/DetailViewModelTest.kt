@@ -1,6 +1,5 @@
 package parcours.android.eventorias.ui.screen.detail
 
-import android.text.TextUtils
 import android.util.Log
 import io.mockk.coEvery
 import io.mockk.every
@@ -18,6 +17,7 @@ import parcours.android.eventorias.data.repository.FirebaseEventRepository
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.ui.DispatcherProvider
 import parcours.android.eventorias.ui.MainDispatcherExtension
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -27,17 +27,18 @@ class DetailViewModelTest {
     @RegisterExtension
     val mainDispatcherExtension = MainDispatcherExtension()
 
+    private val dispatcherProvider = mockk<DispatcherProvider>()
     private val eventRepository = mockk<FirebaseEventRepository>(relaxed = true)
     private val eventId = "test_event_id"
     private lateinit var viewModel: DetailViewModel
 
     @BeforeEach
     fun setUp() {
+        every { dispatcherProvider.io } returns mainDispatcherExtension.testDispatcher
+        every { dispatcherProvider.main } returns mainDispatcherExtension.testDispatcher
+
         mockkStatic(Log::class)
         every { Log.e(any(), any()) } returns 0
-
-        mockkStatic(TextUtils::class)
-        every { TextUtils.isEmpty(any()) } returns false
     }
 
     @Test
@@ -45,7 +46,7 @@ class DetailViewModelTest {
         val mockEvent = mockk<Event>()
         coEvery { eventRepository.getEventById(eventId) } returns mockEvent
 
-        viewModel = DetailViewModel(eventRepository, eventId)
+        viewModel = DetailViewModel(dispatcherProvider, eventRepository, eventId)
 
         assertTrue(viewModel.uiState.value is DetailViewModel.DetailUiState.Success)
         assertEquals(mockEvent, (viewModel.uiState.value as DetailViewModel.DetailUiState.Success).event)
@@ -55,7 +56,7 @@ class DetailViewModelTest {
     fun `loadEvent failure should update uiState with error`() = runTest {
         coEvery { eventRepository.getEventById(eventId) } returns null
 
-        viewModel = DetailViewModel(eventRepository, eventId)
+        viewModel = DetailViewModel(dispatcherProvider, eventRepository, eventId)
 
         assertTrue(viewModel.uiState.value is DetailViewModel.DetailUiState.Error)
     }
@@ -64,7 +65,7 @@ class DetailViewModelTest {
     fun `loadEvent network exception should update uiState with network error`() = runTest {
         coEvery { eventRepository.getEventById(eventId) } throws NetworkException("No network")
 
-        viewModel = DetailViewModel(eventRepository, eventId)
+        viewModel = DetailViewModel(dispatcherProvider, eventRepository, eventId)
 
         assertTrue(viewModel.uiState.value is DetailViewModel.DetailUiState.Error)
         assertEquals(R.string.network_error, (viewModel.uiState.value as DetailViewModel.DetailUiState.Error).errorMessageId)
@@ -74,7 +75,7 @@ class DetailViewModelTest {
     fun `loadEvent database exception should update uiState with database error`() = runTest {
         coEvery { eventRepository.getEventById(eventId) } throws DatabaseException("Firestore error")
 
-        viewModel = DetailViewModel(eventRepository, eventId)
+        viewModel = DetailViewModel(dispatcherProvider, eventRepository, eventId)
 
         assertTrue(viewModel.uiState.value is DetailViewModel.DetailUiState.Error)
         assertEquals(R.string.database_error, (viewModel.uiState.value as DetailViewModel.DetailUiState.Error).errorMessageId)

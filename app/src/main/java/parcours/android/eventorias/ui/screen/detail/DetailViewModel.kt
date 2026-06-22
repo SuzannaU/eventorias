@@ -11,10 +11,12 @@ import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.domain.repository.EventRepository
+import parcours.android.eventorias.ui.DispatcherProvider
 
 private const val TAG = "TAG DetailViewModel"
 
 class DetailViewModel(
+    private val dispatcher: DispatcherProvider,
     private val eventRepository: EventRepository,
     private val eventId: String
 ) : ViewModel() {
@@ -27,7 +29,7 @@ class DetailViewModel(
     }
 
     fun loadEvent() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher.io) {
             _uiState.value = DetailUiState.Loading
             try {
                 val event = eventRepository.getEventById(eventId)

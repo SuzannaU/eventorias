@@ -1,11 +1,9 @@
 package parcours.android.eventorias.ui
 
-import android.text.TextUtils
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -29,23 +27,24 @@ class MainViewModelTest {
     @RegisterExtension
     val mainDispatcherExtension = MainDispatcherExtension()
 
+    private val dispatcherProvider = mockk<DispatcherProvider>()
     private val userRepository = mockk<FirebaseUserRepository>(relaxed = true)
     private val authService = mockk<AuthService>(relaxed = true)
     private lateinit var viewModel: MainViewModel
 
     @BeforeEach
     fun setUp() {
-        viewModel = MainViewModel(userRepository, authService)
+        every { dispatcherProvider.io } returns mainDispatcherExtension.testDispatcher
+        every { dispatcherProvider.main } returns mainDispatcherExtension.testDispatcher
 
-        mockkStatic(TextUtils::class)
-        every { TextUtils.isEmpty(any()) } returns false
+        viewModel = MainViewModel(dispatcherProvider, userRepository, authService)
     }
 
     @Test
     fun `init should observe auth state`() {
         every { authService.authState } returns flowOf(null)
 
-        viewModel = MainViewModel(userRepository, authService)
+        viewModel = MainViewModel(dispatcherProvider, userRepository, authService)
 
         verify { authService.authState }
         assertFalse(viewModel.uiState.value.isLoading)
@@ -57,7 +56,7 @@ class MainViewModelTest {
         val mockUser = mockk<AuthUser>()
         every { mockUser.uid } returns "test_uid"
         every { authService.authState } returns flowOf(mockUser)
-        viewModel = MainViewModel(userRepository, authService)
+        viewModel = MainViewModel(dispatcherProvider, userRepository, authService)
 
         val state = viewModel.uiState.value
 
@@ -71,7 +70,7 @@ class MainViewModelTest {
     fun `when user is NOT authenticated, uiState should reflect it`() = runTest {
 
         every { authService.authState } returns flowOf(null)
-        viewModel = MainViewModel(userRepository, authService)
+        viewModel = MainViewModel(dispatcherProvider, userRepository, authService)
 
         val state = viewModel.uiState.value
 

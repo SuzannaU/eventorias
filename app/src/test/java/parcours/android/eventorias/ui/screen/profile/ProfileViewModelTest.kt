@@ -20,6 +20,7 @@ import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.domain.service.NotificationService
+import parcours.android.eventorias.ui.DispatcherProvider
 import parcours.android.eventorias.ui.MainDispatcherExtension
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -29,6 +30,7 @@ class ProfileViewModelTest {
     @RegisterExtension
     val mainDispatcherExtension = MainDispatcherExtension()
 
+    private val dispatcherProvider = mockk<DispatcherProvider>()
     private val userRepository = mockk<FirebaseUserRepository>(relaxed = true)
     private val notificationService = mockk<NotificationService>(relaxed = true)
     private lateinit var viewModel: ProfileViewModel
@@ -36,6 +38,9 @@ class ProfileViewModelTest {
     @BeforeEach
 
     fun setUp() {
+        every { dispatcherProvider.io } returns mainDispatcherExtension.testDispatcher
+        every { dispatcherProvider.main } returns mainDispatcherExtension.testDispatcher
+
         mockkStatic(Log::class)
         every { Log.e(any(), any()) } returns 0
     }
@@ -45,7 +50,7 @@ class ProfileViewModelTest {
         val mockUser = mockk<User>(relaxed = true)
         coEvery { userRepository.getCurrentUser() } returns mockUser
 
-        viewModel = ProfileViewModel(userRepository, notificationService)
+        viewModel = ProfileViewModel(dispatcherProvider, userRepository, notificationService)
 
         assertTrue(viewModel.profileScreenState.value is ProfileViewModel.ProfileScreenState.UserFound)
         assertEquals(mockUser, (viewModel.profileScreenState.value as ProfileViewModel.ProfileScreenState.UserFound).user)
@@ -55,7 +60,7 @@ class ProfileViewModelTest {
     fun `loadUserProfile failure should update state to NoUserFound`() = runTest {
         coEvery { userRepository.getCurrentUser() } returns null
 
-        viewModel = ProfileViewModel(userRepository, notificationService)
+        viewModel = ProfileViewModel(dispatcherProvider, userRepository, notificationService)
 
         assertTrue(viewModel.profileScreenState.value is ProfileViewModel.ProfileScreenState.NoUserFound)
     }
@@ -64,7 +69,7 @@ class ProfileViewModelTest {
     fun `loadUserProfile network exception should update state to error`() = runTest {
         coEvery { userRepository.getCurrentUser() } throws NetworkException("No network")
 
-        viewModel = ProfileViewModel(userRepository, notificationService)
+        viewModel = ProfileViewModel(dispatcherProvider, userRepository, notificationService)
 
         assertTrue(viewModel.profileScreenState.value is ProfileViewModel.ProfileScreenState.Error)
         assertEquals(R.string.network_error, (viewModel.profileScreenState.value as ProfileViewModel.ProfileScreenState.Error).errorMessageId)
@@ -74,7 +79,7 @@ class ProfileViewModelTest {
     fun `loadUserProfile database exception should update state to error`() = runTest {
         coEvery { userRepository.getCurrentUser() } throws DatabaseException("Database exception")
 
-        viewModel = ProfileViewModel(userRepository, notificationService)
+        viewModel = ProfileViewModel(dispatcherProvider, userRepository, notificationService)
 
         assertTrue(viewModel.profileScreenState.value is ProfileViewModel.ProfileScreenState.Error)
         assertEquals(R.string.database_error, (viewModel.profileScreenState.value as ProfileViewModel.ProfileScreenState.Error).errorMessageId)
@@ -82,7 +87,7 @@ class ProfileViewModelTest {
 
     @Test
     fun `onNotificationsToggle true should subscribe to topic`() = runTest {
-        viewModel = ProfileViewModel(userRepository, notificationService)
+        viewModel = ProfileViewModel(dispatcherProvider, userRepository, notificationService)
         
         viewModel.onNotificationsToggle(true)
 
@@ -93,7 +98,7 @@ class ProfileViewModelTest {
     
     @Test
     fun `onNotificationsToggle false should unsubscribe from topic`() = runTest {
-        viewModel = ProfileViewModel(userRepository, notificationService)
+        viewModel = ProfileViewModel(dispatcherProvider, userRepository, notificationService)
         
         viewModel.onNotificationsToggle(false)
 
@@ -104,7 +109,7 @@ class ProfileViewModelTest {
 
     @Test
     fun `signOut should call repository signOut`() = runTest {
-        viewModel = ProfileViewModel(userRepository, notificationService)
+        viewModel = ProfileViewModel(dispatcherProvider, userRepository, notificationService)
         
         viewModel.signOut()
 

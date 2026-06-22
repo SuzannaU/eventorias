@@ -2,7 +2,6 @@ package parcours.android.eventorias.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
@@ -16,6 +15,7 @@ import parcours.android.eventorias.domain.repository.UserRepository
 import parcours.android.eventorias.domain.service.AuthService
 
 class MainViewModel(
+    private val dispatcher: DispatcherProvider,
     private val userRepository: UserRepository,
     private val authService: AuthService,
 ) : ViewModel() {
@@ -29,24 +29,24 @@ class MainViewModel(
 
     private fun observeAuthState() {
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher.main) {
             // Collect updates reactively. If network drops or errors occur,
-            // you handle them cleanly via flow operators like .catch {}
+            // TODO you handle them cleanly via flow operators like .catch {}
             authService.authState
                 .catch { _uiState.value = _uiState.value.copy(isAuthConnected = false) }
                 .collectLatest { user ->
-                _uiState.value = _uiState.value.copy(
-                    isUserAuthenticated = user != null,
-                    userId = user?.uid,
-                    isAuthConnected = true,
-                    isLoading = false
-                )
-            }
+                    _uiState.value = _uiState.value.copy(
+                        isUserAuthenticated = user != null,
+                        userId = user?.uid,
+                        isAuthConnected = true,
+                        isLoading = false
+                    )
+                }
         }
     }
 
     fun createUser() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher.io) {
             try {
                 userRepository.createUser()
             } catch (e: Exception) {
