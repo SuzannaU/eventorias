@@ -183,7 +183,7 @@ class AddEventViewModelTest {
         coVerify {
             eventRepository.addEvent(match { event ->
                 val calendar = java.util.Calendar.getInstance().apply {
-                    time = event.dateTime!!.toDate()
+                    time = event.dateTime!!
                 }
                 calendar.get(java.util.Calendar.HOUR_OF_DAY) == 14 &&
                         calendar.get(java.util.Calendar.MINUTE) == 30

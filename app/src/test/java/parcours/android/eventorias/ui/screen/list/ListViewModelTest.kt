@@ -2,7 +2,6 @@ package parcours.android.eventorias.ui.screen.list
 
 import android.text.TextUtils
 import android.util.Log
-import com.google.firebase.Timestamp
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -25,6 +24,7 @@ import parcours.android.eventorias.domain.model.Category
 import parcours.android.eventorias.domain.model.Event
 import parcours.android.eventorias.ui.DispatcherProvider
 import parcours.android.eventorias.ui.MainDispatcherExtension
+import java.util.Calendar
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ListViewModelTest {
@@ -118,11 +118,11 @@ class ListViewModelTest {
     @Test
     fun `sorting logic should work correctly`() = runTest {
         val event1 = mockk<Event>(relaxed = true)
-        every { event1.dateTime } returns Timestamp(1000, 0)
+        every { event1.dateTime } returns Calendar.getInstance().apply {timeInMillis = 1000}.time
         every { event1.category } returns Category.ART
 
         val event2 = mockk<Event>(relaxed = true)
-        every { event2.dateTime } returns Timestamp(2000, 0)
+        every { event2.dateTime } returns Calendar.getInstance().apply {timeInMillis = 2000}.time
         every { event2.category } returns Category.TECH
 
         every { eventRepository.getEvents() } returns flowOf(listOf(event2, event1))
