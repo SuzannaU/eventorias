@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.map
 import parcours.android.eventorias.data.datasource.EventDataSource
 import parcours.android.eventorias.data.dto.toDomain
 import parcours.android.eventorias.data.dto.toDto
+import parcours.android.eventorias.data.service.LocationService
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Event
@@ -15,11 +16,15 @@ import parcours.android.eventorias.domain.repository.EventRepository
 
 class FirebaseEventRepository(
     private val eventDataSource: EventDataSource,
+    private val locationService: LocationService,
 ) : EventRepository {
 
     override suspend fun getEventById(postId: String): Event? {
         return try {
-            eventDataSource.getEventById(postId)?.toDomain()
+            eventDataSource.getEventById(postId)?.let { eventDto ->
+                val coordinates = eventDto.coordinates?.let { Pair(it.latitude, it.longitude) }
+                eventDto.toDomain(locationService.getEventAddress(coordinates))
+            }
         } catch (e: Exception) {
             handleException(e, "Error fetching event")
         }
@@ -28,7 +33,17 @@ class FirebaseEventRepository(
     override fun getEvents(): Flow<List<Event>> {
         return try {
             eventDataSource.getEvents().map { entities ->
-                entities.map { it.toDomain() }
+                entities.map { entity ->
+                    entity.toDomain(
+                        locationService
+                            .getEventAddress(entity.coordinates?.let {
+                                Pair(
+                                    it.latitude,
+                                    it.longitude
+                                )
+                            })
+                    )
+                }
             }
         } catch (e: Exception) {
             handleException(e, "Error fetching events")
@@ -42,7 +57,12 @@ class FirebaseEventRepository(
                 val downloadUri = eventDataSource.uploadEventPicture(pictureUri)
                 eventToSave = eventToSave.copy(pictureUrl = downloadUri.toString())
             }
-            eventDataSource.saveEvent(eventToSave.toDto())
+
+            val coordinates = event.location?.let {
+                locationService.getEventCoordinates(it)
+            }
+
+            eventDataSource.saveEvent(eventToSave.toDto(coordinates))
         } catch (e: Exception) {
             handleException(e, "Error adding event")
         }

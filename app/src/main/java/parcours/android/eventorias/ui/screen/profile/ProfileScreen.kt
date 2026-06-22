@@ -139,7 +139,12 @@ fun ProfileScreen(
 
                 }
 
-                is ProfileViewModel.ProfileScreenState.Error -> TODO()
+                is ProfileViewModel.ProfileScreenState.Error -> {
+                    ErrorScreen(
+                        errorMessage = stringResource(state.errorMessageId),
+                        onRetry = { viewModel.loadUserProfile() },
+                    )
+                }
             }
         }
     }

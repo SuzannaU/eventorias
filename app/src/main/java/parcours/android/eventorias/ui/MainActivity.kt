@@ -198,8 +198,3 @@ fun EventoriasNavHost(
         }
     }
 }
-
-//TODO
-/*
-Geocoder?
-*/

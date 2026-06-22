@@ -15,6 +15,8 @@ import parcours.android.eventorias.data.repository.FirebaseUserRepository
 import parcours.android.eventorias.data.repository.ImageRepositoryImpl
 import parcours.android.eventorias.data.service.FcmNotificationService
 import parcours.android.eventorias.data.service.FirebaseAuthService
+import parcours.android.eventorias.data.service.GeocoderService
+import parcours.android.eventorias.data.service.LocationService
 import parcours.android.eventorias.domain.repository.EventRepository
 import parcours.android.eventorias.domain.repository.ImageRepository
 import parcours.android.eventorias.domain.repository.UserRepository
@@ -36,11 +38,12 @@ val appModule = module {
 
     single<DispatcherProvider> { DefaultDispatcherProvider() }
     single<UserDataSource> { FirebaseUserDataSource(get(), get()) }
+    single<AuthService> { FirebaseAuthService(get()) }
+    single<LocationService> { GeocoderService(get()) }
     single<UserRepository> { FirebaseUserRepository(get()) }
     single<EventDataSource> { FirebaseEventDataSource(get(), get()) }
-    single<EventRepository> { FirebaseEventRepository(get()) }
+    single<EventRepository> { FirebaseEventRepository(get(), get()) }
     single<ImageRepository> { ImageRepositoryImpl() }
-    single<AuthService> { FirebaseAuthService(get()) }
     single<NotificationService> { FcmNotificationService(get()) }
 
     viewModel { MainViewModel(get(), get(), get()) }

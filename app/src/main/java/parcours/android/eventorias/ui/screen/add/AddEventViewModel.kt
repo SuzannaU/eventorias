@@ -110,17 +110,6 @@ class AddEventViewModel(
         return imageRepository.createImageUri(context)
     }
 
-    private fun mergeDateTime(): Date {
-        val calendar = Calendar.getInstance().apply {
-            timeInMillis = _uiState.value.selectedDateMillis ?: System.currentTimeMillis()
-            set(Calendar.HOUR_OF_DAY, _uiState.value.selectedHour ?: 0)
-            set(Calendar.MINUTE, _uiState.value.selectedMinute ?: 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-        return calendar.time
-    }
-
     fun addEvent() {
         if (!validate()) return
         _saveState.value = SaveState.Loading
@@ -186,6 +175,17 @@ class AddEventViewModel(
 
     fun resetSaveState() {
         _saveState.value = SaveState.Idle
+    }
+
+    private fun mergeDateTime(): Date {
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = _uiState.value.selectedDateMillis ?: System.currentTimeMillis()
+            set(Calendar.HOUR_OF_DAY, _uiState.value.selectedHour ?: 0)
+            set(Calendar.MINUTE, _uiState.value.selectedMinute ?: 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        return calendar.time
     }
 
     data class FromUiState(

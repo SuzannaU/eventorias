@@ -2,6 +2,7 @@ package parcours.android.eventorias.data.dto
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.GeoPoint
 import parcours.android.eventorias.domain.model.Category
 import parcours.android.eventorias.domain.model.Event
 import java.io.Serializable
@@ -13,29 +14,29 @@ data class EventDto(
     val title: String = "",
     val description: String? = null,
     val dateTime: Timestamp? = null,
-    val location: String? = null,
+    var coordinates: GeoPoint? = null,
     val pictureUrl: String? = null,
     val category: Category = Category.OTHER,
 ) : Serializable
 
-fun EventDto.toDomain() = Event(
+fun EventDto.toDomain(address: String? = null) = Event(
     eventId = eventId,
     author = author?.toDomain(),
     title = title,
     description = description,
     dateTime = dateTime?.toDate(),
-    location = location,
+    location = address,
     pictureUrl = pictureUrl,
     category = category
 )
 
-fun Event.toDto() = EventDto(
+fun Event.toDto(coordinates: Pair<Double, Double>? = null) = EventDto(
     eventId = eventId,
     author = author?.toDto(),
     title = title,
     description = description,
     dateTime = dateTime?.let { Timestamp(it) },
-    location = location,
+    coordinates = coordinates?. let { GeoPoint(coordinates.first, coordinates.second) },
     pictureUrl = pictureUrl,
     category = category
 )
