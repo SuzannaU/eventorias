@@ -11,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import org.koin.android.ext.android.inject
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.service.NotificationService
 import parcours.android.eventorias.ui.MainActivity
@@ -18,9 +19,9 @@ import parcours.android.eventorias.ui.screen.profile.FCM_ALL_TOPICS
 
 private const val TAG = "TAG NotificationService"
 
-class FcmNotificationService(
-    private val firebaseMessaging: FirebaseMessaging,
-) : FirebaseMessagingService(), NotificationService {
+class FcmNotificationService: FirebaseMessagingService(), NotificationService {
+
+    private val firebaseMessaging: FirebaseMessaging by inject()
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)

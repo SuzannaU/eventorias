@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import parcours.android.eventorias.data.datasource.EventDataSource
 import parcours.android.eventorias.data.dto.EventDto
+import parcours.android.eventorias.data.service.LocationService
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Event
@@ -26,6 +27,7 @@ import parcours.android.eventorias.domain.model.Event
 class FirebaseEventRepositoryTest {
 
     private val eventDataSource = mockk<EventDataSource>()
+    private val locationService = mockk<LocationService>()
     private lateinit var eventRepository: FirebaseEventRepository
 
     @BeforeEach
@@ -35,7 +37,7 @@ class FirebaseEventRepositoryTest {
         every { Log.w(any<String>(), any<String>()) } returns 0
         every { Log.e(any<String>(), any<String>()) } returns 0
         
-        eventRepository = FirebaseEventRepository(eventDataSource)
+        eventRepository = FirebaseEventRepository(eventDataSource, locationService)
     }
 
     @Test

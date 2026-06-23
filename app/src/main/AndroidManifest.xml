@@ -34,7 +34,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
         <service
-            android:name=".data.NotificationService"
+            android:name=".data.service.FcmNotificationService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

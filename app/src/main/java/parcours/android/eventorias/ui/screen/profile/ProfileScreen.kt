@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
@@ -274,12 +275,14 @@ fun NavigationBottomBar(
             onClick = onEventsClick,
             icon = { Icon(Icons.Default.Event, contentDescription = null) },
             label = { Text(stringResource(R.string.events)) },
+            modifier = Modifier.testTag("events button")
         )
         NavigationBarItem(
             selected = currentRoute == PROFILE_ROUTE,
             onClick = onProfileClick,
             icon = { Icon(Icons.Default.Person, contentDescription = null) },
             label = { Text(stringResource(R.string.profile)) },
+            modifier = Modifier.testTag("profile button")
         )
         Spacer(Modifier.weight(1f))
     }

@@ -44,7 +44,7 @@ val appModule = module {
     single<EventDataSource> { FirebaseEventDataSource(get(), get()) }
     single<EventRepository> { FirebaseEventRepository(get(), get()) }
     single<ImageRepository> { ImageRepositoryImpl() }
-    single<NotificationService> { FcmNotificationService(get()) }
+    single<NotificationService> { FcmNotificationService() }
 
     viewModel { MainViewModel(get(), get(), get()) }
     viewModel { ListViewModel(get(), get()) }

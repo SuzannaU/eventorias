@@ -50,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -105,7 +106,7 @@ fun ListScreen(
                             onValueChange = { viewModel.onSearchQueryChange(it) },
                             placeholder = { Text(stringResource(R.string.search)) },
                             singleLine = true,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().testTag("search field"),
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,
                                 unfocusedContainerColor = Color.Transparent,
@@ -154,7 +155,8 @@ fun ListScreen(
                             colors = IconButtonDefaults.iconButtonColors(
                                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 disabledContentColor = MaterialTheme.colorScheme.outlineVariant,
-                            )
+                            ),
+                            modifier = Modifier.testTag("search button")
                         ) {
                             Icon(
                                 Icons.Default.Search,
@@ -166,7 +168,8 @@ fun ListScreen(
                             colors = IconButtonDefaults.iconButtonColors(
                                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 disabledContentColor = MaterialTheme.colorScheme.outlineVariant,
-                            )
+                            ),
+                            modifier = Modifier.testTag("sort button")
                         ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.Sort,
@@ -176,7 +179,8 @@ fun ListScreen(
 
                         DropdownMenu(
                             expanded = sortDropdownDisplayed,
-                            onDismissRequest = { sortDropdownDisplayed = false }
+                            onDismissRequest = { sortDropdownDisplayed = false },
+                            modifier = Modifier.testTag("sorting menu")
                         ) {
                             viewModel.sortOptions.forEachIndexed { index, labelId ->
                                 DropdownMenuItem(
