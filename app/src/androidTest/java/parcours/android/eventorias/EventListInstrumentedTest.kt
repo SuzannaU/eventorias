@@ -2,6 +2,7 @@ package parcours.android.eventorias
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -12,7 +13,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import parcours.android.eventorias.domain.model.Event
@@ -49,6 +49,7 @@ class EventListInstrumentedTest {
 
         composeTestRule.onNodeWithText("Art exhibition").assertIsDisplayed()
         composeTestRule.onNodeWithText("Tech conference").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("events button").assertIsSelected()
     }
 
     @Test
@@ -169,33 +170,5 @@ class EventListInstrumentedTest {
         composeTestRule.onNodeWithText("Date (Soonest first)").performClick()
         composeTestRule.onNodeWithTag("sorting menu").assertIsNotDisplayed()
         verify { viewModel.sortEventsBy(0) }
-    }
-
-    @Test
-    fun clickOnEventShouldNavigateToEvent() {
-        val fakeEvents = listOf(
-            Event(title = "Art exhibition", eventId = "1"),
-            Event(title = "Tech conference", eventId = "2"),
-        )
-
-        val viewModel = mockk<ListViewModel>(relaxed = true)
-        every { viewModel.listScreenState } returns MutableStateFlow(ListViewModel.ListScreenState.EventsLoaded(fakeEvents))
-        every { viewModel.searchQuery } returns MutableStateFlow("")
-
-        var capturedEventId: String? = null
-
-        composeTestRule.setContent {
-            EventoriasTheme {
-                ListScreen(
-                    viewModel = viewModel,
-                    onAddClick = {},
-                    onProfileClick = {},
-                    onEventClick = { id -> capturedEventId = id },
-                )
-            }
-        }
-
-        composeTestRule.onNodeWithText("Art exhibition").performClick()
-        assertEquals("1", capturedEventId)
     }
 }

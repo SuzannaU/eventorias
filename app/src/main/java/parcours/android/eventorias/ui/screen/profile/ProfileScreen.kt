@@ -184,6 +184,7 @@ fun ProfileContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .testTag("notifications switch")
                 .toggleable(
                     value = notificationsEnabled,
                     role = Role.Switch,

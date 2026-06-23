@@ -44,11 +44,13 @@ class FirebaseEventRepositoryTest {
     fun `getEventById returns Event when found`() = runTest {
         val eventDto = EventDto(eventId = "1", title = "Test Event")
         coEvery { eventDataSource.getEventById("1") } returns eventDto
+        coEvery { locationService.getEventAddress(any()) } returns "Test Address"
 
         val result = eventRepository.getEventById("1")
 
         assertEquals("1", result?.eventId)
         assertEquals("Test Event", result?.title)
+        assertEquals("Test Address", result?.location)
     }
 
     @Test
@@ -86,6 +88,7 @@ class FirebaseEventRepositoryTest {
     fun `getEvents returns list of Events`() = runTest {
         val eventDtos = listOf(EventDto(eventId = "1"), EventDto(eventId = "2"))
         coEvery { eventDataSource.getEvents() } returns flowOf(eventDtos)
+        coEvery { locationService.getEventAddress(any()) } returns "Test Address"
 
         val result = eventRepository.getEvents().first()
 
