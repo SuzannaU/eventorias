@@ -4,7 +4,7 @@ import java.util.Date
 
 data class Event(
     val eventId: String = "",
-    val author: User? = null,
+    val authorId: String? = null,
     val title: String,
     val description: String? = null,
     val dateTime: Date? = null,

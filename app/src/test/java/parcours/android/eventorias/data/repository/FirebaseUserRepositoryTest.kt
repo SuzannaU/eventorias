@@ -60,6 +60,27 @@ class FirebaseUserRepositoryTest {
     }
 
     @Test
+    fun `getUserById returns User when datasource returns UserDto`() = runTest {
+        val userDto = UserDto(userId = "123", username = "testuser", email = "test@test.com")
+        coEvery { userDataSource.getUserById(any()) } returns userDto
+
+        val result = userRepository.getUserById("123")
+
+        assertEquals("123", result?.userId)
+        assertEquals("testuser", result?.username)
+        assertEquals("test@test.com", result?.email)
+    }
+
+    @Test
+    fun `getUserById returns null when datasource returns null`() = runTest {
+        coEvery { userDataSource.getUserById(any()) } returns null
+
+        val result = userRepository.getUserById("123")
+
+        assertNull(result)
+    }
+
+    @Test
     fun `getCurrentUser throws AuthException when FirebaseAuthException occurs`() = runTest {
         val firebaseAuthException = mockk<FirebaseAuthException>(relaxed = true)
         coEvery { firebaseAuthException.message } returns "Auth failed"

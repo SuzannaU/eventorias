@@ -46,6 +46,7 @@ import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.ui.formatEventDate
 import parcours.android.eventorias.ui.formatEventTime
 import parcours.android.eventorias.ui.getStaticMapUrl
@@ -102,7 +103,10 @@ fun DetailScreen(
                 }
 
                 is DetailViewModel.DetailUiState.Success -> {
-                    DetailContent(event = state.event)
+                    DetailContent(
+                        event = state.event,
+                        author = state.author,
+                    )
                 }
 
                 is DetailViewModel.DetailUiState.Error -> {
@@ -119,6 +123,7 @@ fun DetailScreen(
 @Composable
 fun DetailContent(
     event: Event,
+    author: User,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -148,9 +153,10 @@ fun DetailContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(modifier = Modifier
-                .weight(1f)
-                .semantics(mergeDescendants = true){}
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .semantics(mergeDescendants = true) {}
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -160,7 +166,8 @@ fun DetailContent(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = event.dateTime?.formatEventDate() ?: stringResource(R.string.no_date),
+                        text = event.dateTime?.formatEventDate()
+                            ?: stringResource(R.string.no_date),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -176,7 +183,8 @@ fun DetailContent(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = event.dateTime?.formatEventTime() ?: stringResource(R.string.no_time),
+                        text = event.dateTime?.formatEventTime()
+                            ?: stringResource(R.string.no_time),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -184,7 +192,7 @@ fun DetailContent(
             }
 
             AsyncImage(
-                model = event.author?.pictureUrl ?: R.drawable.baseline_face_24,
+                model = author.pictureUrl ?: R.drawable.baseline_face_24,
                 contentDescription = null,
                 modifier = Modifier
                     .size(72.dp)

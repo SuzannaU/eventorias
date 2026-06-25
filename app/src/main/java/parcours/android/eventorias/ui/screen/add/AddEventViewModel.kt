@@ -128,7 +128,7 @@ class AddEventViewModel(
                 user?.let {
                     eventRepository.addEvent(
                         event.copy(
-                            author = user
+                            authorId = user.userId
                         ),
                         pictureUri = _uiState.value.uri,
                     )

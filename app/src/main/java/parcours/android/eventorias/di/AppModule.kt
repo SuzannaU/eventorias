@@ -47,8 +47,8 @@ val appModule = module {
     single<NotificationService> { FcmNotificationService() }
 
     viewModel { MainViewModel(get(), get(), get()) }
-    viewModel { ListViewModel(get(), get()) }
+    viewModel { ListViewModel(get(), get(), get()) }
     viewModel { AddEventViewModel(get(), get(), get(), get()) }
     viewModel { ProfileViewModel(get(), get(), get()) }
-    viewModel { (eventId: String) -> DetailViewModel(get(), get(), eventId) }
+    viewModel { (eventId: String) -> DetailViewModel(get(), get(), get(), eventId) }
 }

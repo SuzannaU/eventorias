@@ -10,7 +10,7 @@ import java.io.Serializable
 data class EventDto(
     @DocumentId
     val eventId: String = "",
-    val author: UserDto? = null,
+    val authorId: String? = null,
     val title: String = "",
     val description: String? = null,
     val dateTime: Timestamp? = null,
@@ -21,7 +21,7 @@ data class EventDto(
 
 fun EventDto.toDomain(address: String? = null) = Event(
     eventId = eventId,
-    author = author?.toDomain(),
+    authorId = authorId,
     title = title,
     description = description,
     dateTime = dateTime?.toDate(),
@@ -32,7 +32,7 @@ fun EventDto.toDomain(address: String? = null) = Event(
 
 fun Event.toDto(coordinates: Pair<Double, Double>? = null) = EventDto(
     eventId = eventId,
-    author = author?.toDto(),
+    authorId = authorId,
     title = title,
     description = description,
     dateTime = dateTime?.let { Timestamp(it) },

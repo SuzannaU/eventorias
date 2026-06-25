@@ -10,7 +10,9 @@ import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.domain.repository.EventRepository
+import parcours.android.eventorias.domain.repository.UserRepository
 import parcours.android.eventorias.ui.DispatcherProvider
 
 private const val TAG = "TAG DetailViewModel"
@@ -18,6 +20,7 @@ private const val TAG = "TAG DetailViewModel"
 class DetailViewModel(
     private val dispatcher: DispatcherProvider,
     private val eventRepository: EventRepository,
+    private val userRepository: UserRepository,
     private val eventId: String
 ) : ViewModel() {
 
@@ -33,10 +36,12 @@ class DetailViewModel(
             _uiState.value = DetailUiState.Loading
             try {
                 val event = eventRepository.getEventById(eventId)
-                if (event != null) {
-                    _uiState.value = DetailUiState.Success(event)
-                } else {
-                    _uiState.value = DetailUiState.Error(R.string.event_not_found)
+                val author = userRepository.getUserById(event?.authorId ?: "")
+
+                _uiState.value = when {
+                    event == null -> DetailUiState.Error(R.string.event_not_found)
+                    author == null -> DetailUiState.Error(R.string.user_not_found)
+                    else -> DetailUiState.Success(event, author)
                 }
             } catch (e: Exception) {
                 val errorRes = when (e) {
@@ -52,7 +57,7 @@ class DetailViewModel(
 
     sealed class DetailUiState {
         object Loading : DetailUiState()
-        data class Success(val event: Event) : DetailUiState()
+        data class Success(val event: Event, val author: User) : DetailUiState()
         data class Error(val errorMessageId: Int) : DetailUiState()
     }
 }

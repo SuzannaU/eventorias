@@ -22,6 +22,13 @@ class FirebaseUserDataSource(
             .toObject<UserDto>()
     }
 
+    override suspend fun getUserById(userId: String): UserDto? {
+        return firestore.collection(USER_COLLECTION).document(userId)
+            .get()
+            .await()
+            .toObject<UserDto>()
+    }
+
     override suspend fun saveUser(user: UserDto) {
         firestore.collection(USER_COLLECTION).document(user.userId)
             .set(user).await()

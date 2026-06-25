@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.ui.screen.detail.DetailScreen
 import parcours.android.eventorias.ui.screen.detail.DetailViewModel
 import parcours.android.eventorias.ui.theme.EventoriasTheme
@@ -27,8 +28,11 @@ class DetailListInstrumentedTest {
             location = "Paris, France",
             dateTime = Date()
         )
+        val mockUser = User(
+            userId = "user123",
+        )
         val viewModel = mockk<DetailViewModel>(relaxed = true)
-        every { viewModel.uiState } returns MutableStateFlow(DetailViewModel.DetailUiState.Success(mockEvent))
+        every { viewModel.uiState } returns MutableStateFlow(DetailViewModel.DetailUiState.Success(mockEvent, mockUser))
 
         composeTestRule.setContent {
             EventoriasTheme {

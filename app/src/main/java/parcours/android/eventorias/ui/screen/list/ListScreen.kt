@@ -68,6 +68,7 @@ import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.ui.formatEventDate
 import parcours.android.eventorias.ui.screen.ErrorImageBox
 import parcours.android.eventorias.ui.screen.LIST_ROUTE
@@ -249,9 +250,10 @@ fun ListScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(currentState.events) { event ->
+                        items(currentState.eventsWithAuthor) { (event, author) ->
                             EventCell(
                                 event = event,
+                                author = author,
                                 onClick = { onEventClick(event.eventId) }
                             )
                         }
@@ -286,6 +288,7 @@ fun ListScreen(
 @Composable
 fun EventCell(
     event: Event,
+    author: User,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -307,7 +310,7 @@ fun EventCell(
             Spacer(modifier = Modifier.width(12.dp))
 
             AsyncImage(
-                model = event.author?.pictureUrl ?: R.drawable.baseline_face_24,
+                model = author.pictureUrl ?: R.drawable.baseline_face_24,
                 contentDescription = stringResource(R.string.author_profile_picture),
                 modifier = Modifier
                     .size(50.dp)
@@ -365,6 +368,7 @@ fun EventCellPreview() {
                 dateTime = Date(),
                 pictureUrl = "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             ),
+            author = User(userId = "123456789"),
             onClick = {}
         )
     }

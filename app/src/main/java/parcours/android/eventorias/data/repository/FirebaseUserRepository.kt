@@ -28,6 +28,14 @@ class FirebaseUserRepository(
         }
     }
 
+    override suspend fun getUserById(userId: String): User? {
+        return try {
+            userDataSource.getUserById(userId)?.toDomain()
+        } catch (e: Exception) {
+            handleException(e, "Error during user retrieval")
+        }
+    }
+
     override suspend fun createUser() {
         val user = getCurrentUser() ?: throw UserNotFoundException("Auth user not found")
         try {

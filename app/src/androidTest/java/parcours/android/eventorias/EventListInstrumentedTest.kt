@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.ui.screen.list.ListScreen
 import parcours.android.eventorias.ui.screen.list.ListViewModel
 import parcours.android.eventorias.ui.theme.EventoriasTheme
@@ -28,12 +29,16 @@ class EventListInstrumentedTest {
     @Test
     fun loadedEventsShouldBeDisplayed() {
         val fakeEvents = listOf(
-            Event(title = "Art exhibition", eventId = "1"),
-            Event(title = "Tech conference", eventId = "2"),
+            Pair(Event(title = "Art exhibition", eventId = "1"), User(userId = "user123")),
+            Pair(Event(title = "Tech conference", eventId = "2"), User(userId = "user123"))
         )
 
         val viewModel = mockk<ListViewModel>(relaxed = true)
-        every { viewModel.listScreenState } returns MutableStateFlow(ListViewModel.ListScreenState.EventsLoaded(fakeEvents))
+        every { viewModel.listScreenState } returns MutableStateFlow(
+            ListViewModel.ListScreenState.EventsLoaded(
+                fakeEvents
+            )
+        )
         every { viewModel.searchQuery } returns MutableStateFlow("")
 
         composeTestRule.setContent {
@@ -77,7 +82,11 @@ class EventListInstrumentedTest {
     fun errorDuringLoadingShouldDisplayErrorScreen() {
 
         val viewModel = mockk<ListViewModel>(relaxed = true)
-        every { viewModel.listScreenState } returns MutableStateFlow(ListViewModel.ListScreenState.Error(R.string.unknown_error))
+        every { viewModel.listScreenState } returns MutableStateFlow(
+            ListViewModel.ListScreenState.Error(
+                R.string.unknown_error
+            )
+        )
         every { viewModel.searchQuery } returns MutableStateFlow("")
 
         composeTestRule.setContent {
@@ -97,12 +106,16 @@ class EventListInstrumentedTest {
     @Test
     fun searchFieldInputShouldTriggerViewModel() {
         val fakeEvents = listOf(
-            Event(title = "Art exhibition", eventId = "1"),
-            Event(title = "Tech conference", eventId = "2"),
+            Pair(Event(title = "Art exhibition", eventId = "1"), User(userId = "user123")),
+            Pair(Event(title = "Tech conference", eventId = "2"), User(userId = "user123"))
         )
 
         val viewModel = mockk<ListViewModel>(relaxed = true)
-        every { viewModel.listScreenState } returns MutableStateFlow(ListViewModel.ListScreenState.EventsLoaded(fakeEvents))
+        every { viewModel.listScreenState } returns MutableStateFlow(
+            ListViewModel.ListScreenState.EventsLoaded(
+                fakeEvents
+            )
+        )
         every { viewModel.searchQuery } returns MutableStateFlow("")
 
         composeTestRule.setContent {
@@ -120,7 +133,7 @@ class EventListInstrumentedTest {
         composeTestRule.onNodeWithTag("search button").performClick()
         composeTestRule.onNodeWithTag("search field").performTextInput("conf")
 
-        verify { viewModel.onSearchQueryChange("conf")}
+        verify { viewModel.onSearchQueryChange("conf") }
     }
 
     @Test

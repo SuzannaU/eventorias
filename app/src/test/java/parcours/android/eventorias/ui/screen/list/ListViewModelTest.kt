@@ -1,6 +1,7 @@
 package parcours.android.eventorias.ui.screen.list
 
 import android.util.Log
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -18,9 +19,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import parcours.android.eventorias.data.repository.FirebaseEventRepository
+import parcours.android.eventorias.data.repository.FirebaseUserRepository
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Category
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.ui.DispatcherProvider
 import parcours.android.eventorias.ui.MainDispatcherExtension
 import java.util.Calendar
@@ -33,6 +36,7 @@ class ListViewModelTest {
     val mainDispatcherExtension = MainDispatcherExtension()
 
     private val eventRepository = mockk<FirebaseEventRepository>(relaxed = true)
+    private val userRepository = mockk<FirebaseUserRepository>(relaxed = true)
     private val dispatcherProvider = mockk<DispatcherProvider>()
     private lateinit var viewModel: ListViewModel
 
@@ -48,17 +52,22 @@ class ListViewModelTest {
     @Test
     fun `when events are loaded, state should be EventsLoaded`() = runTest {
         val mockEvents = listOf(mockk<Event>(relaxed = true))
+        val mockAuthor = mockk<User>(relaxed = true)
+        val fakeEventsWithAuthor = listOf(
+            Pair(mockEvents[0], mockAuthor)
+        )
         every { eventRepository.getEvents() } returns flowOf(mockEvents)
+        coEvery { userRepository.getUserById(any()) } returns mockAuthor
 
-        viewModel = ListViewModel(dispatcherProvider, eventRepository)
+        viewModel = ListViewModel(dispatcherProvider, eventRepository, userRepository)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.listScreenState.collect()
         }
 
         assertTrue(viewModel.listScreenState.value is ListViewModel.ListScreenState.EventsLoaded)
         assertEquals(
-            mockEvents,
-            (viewModel.listScreenState.value as ListViewModel.ListScreenState.EventsLoaded).events
+            fakeEventsWithAuthor,
+            (viewModel.listScreenState.value as ListViewModel.ListScreenState.EventsLoaded).eventsWithAuthor
         )
     }
 
@@ -69,7 +78,7 @@ class ListViewModelTest {
         }
         every { eventRepository.getEvents() } returns flow
 
-        viewModel = ListViewModel(dispatcherProvider, eventRepository)
+        viewModel = ListViewModel(dispatcherProvider, eventRepository, userRepository)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.listScreenState.collect()
         }
@@ -83,10 +92,13 @@ class ListViewModelTest {
         every { event1.title } returns "Apple"
         val event2 = mockk<Event>(relaxed = true)
         every { event2.title } returns "Banana"
+        val mockAuthor = User(userId = "123")
 
         every { eventRepository.getEvents() } returns flowOf(listOf(event1, event2))
+        coEvery { userRepository.getUserById(any()) } returns mockAuthor
 
-        viewModel = ListViewModel(dispatcherProvider, eventRepository)
+
+        viewModel = ListViewModel(dispatcherProvider, eventRepository, userRepository)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.listScreenState.collect()
         }
@@ -94,14 +106,17 @@ class ListViewModelTest {
         viewModel.onSearchQueryChange("app")
 
         val state = viewModel.listScreenState.value as ListViewModel.ListScreenState.EventsLoaded
-        assertEquals(1, state.events.size)
-        assertEquals("Apple", state.events[0].title)
+        assertEquals(1, state.eventsWithAuthor.size)
+        assertEquals("Apple", state.eventsWithAuthor[0].first.title)
     }
 
     @Test
     fun `onRetry should trigger event reload`() = runTest {
+        val mockAuthor = User(userId = "123")
         every { eventRepository.getEvents() } returns flowOf(emptyList())
-        viewModel = ListViewModel(dispatcherProvider, eventRepository)
+        coEvery { userRepository.getUserById(any()) } returns mockAuthor
+
+        viewModel = ListViewModel(dispatcherProvider, eventRepository, userRepository)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.listScreenState.collect()
         }
@@ -121,34 +136,38 @@ class ListViewModelTest {
         every { event2.dateTime } returns Calendar.getInstance().apply {timeInMillis = 2000}.time
         every { event2.category } returns Category.TECH
 
-        every { eventRepository.getEvents() } returns flowOf(listOf(event2, event1))
+        val mockAuthor = mockk<User>(relaxed = true)
+        every { mockAuthor.userId } returns "123"
 
-        viewModel = ListViewModel(dispatcherProvider, eventRepository)
+        every { eventRepository.getEvents() } returns flowOf(listOf(event2, event1))
+        coEvery { userRepository.getUserById(any()) } returns mockAuthor
+
+        viewModel = ListViewModel(dispatcherProvider, eventRepository, userRepository)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.listScreenState.collect()
         }
 
         // Default is DATE_ASCENDING
         var state = viewModel.listScreenState.value as ListViewModel.ListScreenState.EventsLoaded
-        assertEquals(event1, state.events[0])
-        assertEquals(event2, state.events[1])
+        assertEquals(event1, state.eventsWithAuthor[0].first)
+        assertEquals(event2, state.eventsWithAuthor[1].first)
 
         // Sort by DATE_DESCENDING
         viewModel.sortEventsBy(1)
         state = viewModel.listScreenState.value as ListViewModel.ListScreenState.EventsLoaded
-        assertEquals(event2, state.events[0])
-        assertEquals(event1, state.events[1])
+        assertEquals(event2, state.eventsWithAuthor[0].first)
+        assertEquals(event1, state.eventsWithAuthor[1].first)
 
         // Sort by CATEGORY_ASCENDING
         viewModel.sortEventsBy(2)
         state = viewModel.listScreenState.value as ListViewModel.ListScreenState.EventsLoaded
-        assertEquals(event1, state.events[0])
-        assertEquals(event2, state.events[1])
+        assertEquals(event1, state.eventsWithAuthor[0].first)
+        assertEquals(event2, state.eventsWithAuthor[1].first)
 
         // Sort by CATEGORY_DESCENDING
         viewModel.sortEventsBy(3)
         state = viewModel.listScreenState.value as ListViewModel.ListScreenState.EventsLoaded
-        assertEquals(event2, state.events[0])
-        assertEquals(event1, state.events[1])
+        assertEquals(event2, state.eventsWithAuthor[0].first)
+        assertEquals(event1, state.eventsWithAuthor[1].first)
     }
 }

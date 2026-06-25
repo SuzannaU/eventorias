@@ -4,6 +4,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,7 +22,9 @@ import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.domain.repository.EventRepository
+import parcours.android.eventorias.domain.repository.UserRepository
 import parcours.android.eventorias.ui.DispatcherProvider
 
 private const val TAG = "TAG ListViewModel"
@@ -27,6 +32,7 @@ private const val TAG = "TAG ListViewModel"
 class ListViewModel(
     private val dispatcher: DispatcherProvider,
     private val eventRepository: EventRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
 
@@ -60,7 +66,7 @@ class ListViewModel(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val _eventsFlow: StateFlow<Result<List<Event>>?> = _refreshTrigger
+    private val _eventsFlow2: StateFlow<Result<List<Event>>?> = _refreshTrigger
         .flatMapLatest {
             eventRepository.getEvents()
                 .map { Result.success(it) }
@@ -69,6 +75,28 @@ class ListViewModel(
         .flowOn(dispatcher.io)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _eventsFlow: StateFlow<Result<Map<Event, User>>?> = _refreshTrigger
+        .flatMapLatest {
+            eventRepository.getEvents()
+                .map { events ->
+                    coroutineScope {
+                        val eventAuthorMap = events.map { event ->
+                            async {
+                                val author = event.authorId?.let { userRepository.getUserById(it) }
+                                event to (author ?: User(userId = "unknown user"))
+                            }
+                        }
+                            .awaitAll()
+                            .toMap()
+
+                        Result.success(eventAuthorMap)
+                    }
+                }
+                .catch { e -> emit(Result.failure(e)) }
+        }
+        .flowOn(dispatcher.io)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val listScreenState: StateFlow<ListScreenState> = combine(
         _eventsFlow,
@@ -83,27 +111,29 @@ class ListViewModel(
                 is DatabaseException -> R.string.database_error
                 else -> R.string.unknown_error
             }
-            Log.e(TAG, "Error while adding event: ${exception?.message}")
+            Log.e(TAG, "Error while retrieving event: ${exception?.message}")
             return@combine ListScreenState.Error(errorRes)
         }
 
-        val events = result.getOrNull() ?: emptyList()
+        val eventUserMap = result.getOrNull() ?: emptyMap()
 
         val filteredEvents = if (query.isEmpty()) {
-            events
+            eventUserMap.toList()
         } else {
-            events.filter { it.title.contains(query, ignoreCase = true) }
+            eventUserMap.filter { (event, _) ->
+                event.title.contains(query, ignoreCase = true)
+            }.toList()
         }
 
         val sortedEvents = when (sortOption) {
-            SortOption.DATE_ASCENDING -> filteredEvents.sortedBy { it.dateTime }
-            SortOption.DATE_DESCENDING -> filteredEvents.sortedByDescending { it.dateTime }
-            SortOption.CATEGORY_ASCENDING -> filteredEvents.sortedBy { it.category.name }
-            SortOption.CATEGORY_DESCENDING -> filteredEvents.sortedByDescending { it.category.name }
+            SortOption.DATE_ASCENDING -> filteredEvents.sortedBy { it.first.dateTime }
+            SortOption.DATE_DESCENDING -> filteredEvents.sortedByDescending { it.first.dateTime }
+            SortOption.CATEGORY_ASCENDING -> filteredEvents.sortedBy { it.first.category.name }
+            SortOption.CATEGORY_DESCENDING -> filteredEvents.sortedByDescending { it.first.category.name }
         }
 
         when {
-            events.isEmpty() -> ListScreenState.NoEvents
+            eventUserMap.isEmpty() -> ListScreenState.NoEvents
             filteredEvents.isEmpty() -> ListScreenState.NoResultsFound
             else -> ListScreenState.EventsLoaded(sortedEvents)
         }
@@ -123,7 +153,7 @@ class ListViewModel(
         ) : ListScreenState()
 
         data class EventsLoaded(
-            val events: List<Event>,
+            val eventsWithAuthor: List<Pair<Event, User>>,
         ) : ListScreenState()
     }
 }
