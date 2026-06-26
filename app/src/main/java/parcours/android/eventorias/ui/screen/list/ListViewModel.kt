@@ -1,9 +1,9 @@
 package parcours.android.eventorias.ui.screen.list
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
@@ -27,9 +28,9 @@ class ListViewModel(
 ) : ViewModel() {
 
 
-    private val _refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
+    private val _refreshTrigger = MutableStateFlow(0)
     fun onRetry() {
-        _refreshTrigger.tryEmit(Unit)
+        _refreshTrigger.update { it + 1 }
     }
 
     private val _searchQuery = MutableStateFlow("")
@@ -39,21 +40,12 @@ class ListViewModel(
     }
 
     private val _sortOption = MutableStateFlow(SortOption.DATE_ASCENDING)
-    val sortOptions = listOf(
-        R.string.date_soonest_first,
-        R.string.date_latest_first,
-        R.string.category_a_z,
-        R.string.category_z_a,
-    )
+    val sortOption = _sortOption.asStateFlow()
 
-    fun sortEventsBy(sortOption: Int) {
-        when (sortOption) {
-            0 -> _sortOption.value = SortOption.DATE_ASCENDING
-            1 -> _sortOption.value = SortOption.DATE_DESCENDING
-            2 -> _sortOption.value = SortOption.CATEGORY_ASCENDING
-            3 -> _sortOption.value = SortOption.CATEGORY_DESCENDING
-            else -> _sortOption.value = SortOption.DATE_ASCENDING
-        }
+    val sortOptions = SortOption.entries
+
+    fun sortEventsBy(sortOption: SortOption) {
+        _sortOption.value = sortOption
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -127,4 +119,9 @@ class ListViewModel(
     }
 }
 
-enum class SortOption { DATE_ASCENDING, DATE_DESCENDING, CATEGORY_ASCENDING, CATEGORY_DESCENDING, }
+enum class SortOption(@get:StringRes val labelId: Int) {
+    DATE_ASCENDING(R.string.date_soonest_first),
+    DATE_DESCENDING(R.string.date_latest_first),
+    CATEGORY_ASCENDING(R.string.category_a_z),
+    CATEGORY_DESCENDING(R.string.category_z_a)
+}

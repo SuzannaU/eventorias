@@ -155,19 +155,19 @@ class ListViewModelTest {
         assertEquals(event2, state.eventsWithAuthor[1].event)
 
         // Sort by DATE_DESCENDING
-        viewModel.sortEventsBy(1)
+        viewModel.sortEventsBy(SortOption.DATE_DESCENDING)
         state = viewModel.listScreenState.value as ListViewModel.ListScreenState.EventsLoaded
         assertEquals(event2, state.eventsWithAuthor[0].event)
         assertEquals(event1, state.eventsWithAuthor[1].event)
 
         // Sort by CATEGORY_ASCENDING
-        viewModel.sortEventsBy(2)
+        viewModel.sortEventsBy(SortOption.CATEGORY_ASCENDING)
         state = viewModel.listScreenState.value as ListViewModel.ListScreenState.EventsLoaded
         assertEquals(event1, state.eventsWithAuthor[0].event)
         assertEquals(event2, state.eventsWithAuthor[1].event)
 
         // Sort by CATEGORY_DESCENDING
-        viewModel.sortEventsBy(3)
+        viewModel.sortEventsBy(SortOption.CATEGORY_DESCENDING)
         state = viewModel.listScreenState.value as ListViewModel.ListScreenState.EventsLoaded
         assertEquals(event2, state.eventsWithAuthor[0].event)
         assertEquals(event1, state.eventsWithAuthor[1].event)

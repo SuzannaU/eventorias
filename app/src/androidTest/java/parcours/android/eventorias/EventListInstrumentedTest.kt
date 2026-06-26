@@ -20,6 +20,7 @@ import parcours.android.eventorias.domain.model.EventWithAuthor
 import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.ui.screen.list.ListScreen
 import parcours.android.eventorias.ui.screen.list.ListViewModel
+import parcours.android.eventorias.ui.screen.list.SortOption
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 
 class EventListInstrumentedTest {
@@ -64,6 +65,7 @@ class EventListInstrumentedTest {
         val viewModel = mockk<ListViewModel>(relaxed = true)
         every { viewModel.listScreenState } returns MutableStateFlow(ListViewModel.ListScreenState.NoEvents)
         every { viewModel.searchQuery } returns MutableStateFlow("")
+        every { viewModel.sortOption } returns MutableStateFlow(SortOption.DATE_ASCENDING)
 
         composeTestRule.setContent {
             EventoriasTheme {
@@ -89,6 +91,7 @@ class EventListInstrumentedTest {
             )
         )
         every { viewModel.searchQuery } returns MutableStateFlow("")
+        every { viewModel.sortOption } returns MutableStateFlow(SortOption.DATE_ASCENDING)
 
         composeTestRule.setContent {
             EventoriasTheme {
@@ -118,6 +121,8 @@ class EventListInstrumentedTest {
             )
         )
         every { viewModel.searchQuery } returns MutableStateFlow("")
+        every { viewModel.sortOption } returns MutableStateFlow(SortOption.DATE_ASCENDING)
+        every { viewModel.sortOption } returns MutableStateFlow(SortOption.DATE_ASCENDING)
 
         composeTestRule.setContent {
             EventoriasTheme {
@@ -142,15 +147,12 @@ class EventListInstrumentedTest {
         val viewModel = mockk<ListViewModel>(relaxed = true)
         val stateFlow = MutableStateFlow(ListViewModel.ListScreenState.EventsLoaded(emptyList()))
         val searchQueryFlow = MutableStateFlow("")
+        val sortOptionFlow = MutableStateFlow(SortOption.DATE_ASCENDING)
 
         every { viewModel.listScreenState } returns stateFlow
         every { viewModel.searchQuery } returns searchQueryFlow
-        every { viewModel.sortOptions } returns listOf(
-            R.string.date_soonest_first,
-            R.string.date_latest_first,
-            R.string.category_a_z,
-            R.string.category_z_a,
-        )
+        every { viewModel.sortOption } returns sortOptionFlow
+        every { viewModel.sortOptions } returns SortOption.entries
 
         composeTestRule.setContent {
             EventoriasTheme {
@@ -168,21 +170,21 @@ class EventListInstrumentedTest {
         composeTestRule.onNodeWithContentDescription("Sort").performClick()
         composeTestRule.onNodeWithText("Date (Latest first)").performClick()
         composeTestRule.onNodeWithTag("sorting menu").assertIsNotDisplayed()
-        verify { viewModel.sortEventsBy(1) }
+        verify { viewModel.sortEventsBy(SortOption.DATE_DESCENDING) }
 
         composeTestRule.onNodeWithContentDescription("Sort").performClick()
         composeTestRule.onNodeWithText("Category (A-Z)").performClick()
         composeTestRule.onNodeWithTag("sorting menu").assertIsNotDisplayed()
-        verify { viewModel.sortEventsBy(2) }
+        verify { viewModel.sortEventsBy(SortOption.CATEGORY_ASCENDING) }
 
         composeTestRule.onNodeWithContentDescription("Sort").performClick()
         composeTestRule.onNodeWithText("Category (Z-A)").performClick()
         composeTestRule.onNodeWithTag("sorting menu").assertIsNotDisplayed()
-        verify { viewModel.sortEventsBy(3) }
+        verify { viewModel.sortEventsBy(SortOption.CATEGORY_DESCENDING) }
 
         composeTestRule.onNodeWithContentDescription("Sort").performClick()
         composeTestRule.onNodeWithText("Date (Soonest first)").performClick()
         composeTestRule.onNodeWithTag("sorting menu").assertIsNotDisplayed()
-        verify { viewModel.sortEventsBy(0) }
+        verify { viewModel.sortEventsBy(SortOption.DATE_ASCENDING) }
     }
 }

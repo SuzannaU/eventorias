@@ -41,7 +41,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -91,9 +90,9 @@ fun ListScreen(
 
     val uiState by viewModel.listScreenState.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val selectedSortOption by viewModel.sortOption.collectAsStateWithLifecycle()
     var isSearchMode by rememberSaveable { mutableStateOf(false) }
     var sortDropdownDisplayed by rememberSaveable { mutableStateOf(false) }
-    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
         modifier = modifier.semantics { isTraversalGroup = true },
@@ -164,42 +163,43 @@ fun ListScreen(
                                 contentDescription = stringResource(R.string.search)
                             )
                         }
-                        IconButton(
-                            onClick = { sortDropdownDisplayed = true },
-                            colors = IconButtonDefaults.iconButtonColors(
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                disabledContentColor = MaterialTheme.colorScheme.outlineVariant,
-                            ),
-                            modifier = Modifier.testTag("sort button")
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.Sort,
-                                contentDescription = stringResource(R.string.sort)
-                            )
-                        }
-
-                        DropdownMenu(
-                            expanded = sortDropdownDisplayed,
-                            onDismissRequest = { sortDropdownDisplayed = false },
-                            modifier = Modifier.testTag("sorting menu")
-                        ) {
-                            viewModel.sortOptions.forEachIndexed { index, labelId ->
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(labelId)) },
-                                    onClick = {
-                                        viewModel.sortEventsBy(index)
-                                        selectedIndex = index
-                                        sortDropdownDisplayed = false
-                                    },
-                                    leadingIcon = {
-                                        if (index == selectedIndex) {
-                                            Icon(
-                                                imageVector = Icons.Default.Check,
-                                                contentDescription = null,
-                                            )
-                                        }
-                                    }
+                        Box {
+                            IconButton(
+                                onClick = { sortDropdownDisplayed = true },
+                                colors = IconButtonDefaults.iconButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    disabledContentColor = MaterialTheme.colorScheme.outlineVariant,
+                                ),
+                                modifier = Modifier.testTag("sort button")
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.Sort,
+                                    contentDescription = stringResource(R.string.sort)
                                 )
+                            }
+
+                            DropdownMenu(
+                                expanded = sortDropdownDisplayed,
+                                onDismissRequest = { sortDropdownDisplayed = false },
+                                modifier = Modifier.testTag("sorting menu")
+                            ) {
+                                viewModel.sortOptions.forEach { sortOption ->
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(sortOption.labelId)) },
+                                        onClick = {
+                                            viewModel.sortEventsBy(sortOption)
+                                            sortDropdownDisplayed = false
+                                        },
+                                        leadingIcon = {
+                                            if (sortOption == selectedSortOption) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Check,
+                                                    contentDescription = null,
+                                                )
+                                            }
+                                        }
+                                    )
+                                }
                             }
                         }
                     },
