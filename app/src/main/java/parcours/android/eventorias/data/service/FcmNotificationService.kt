@@ -23,10 +23,6 @@ class FcmNotificationService: FirebaseMessagingService(), NotificationService {
 
     private val firebaseMessaging: FirebaseMessaging by inject()
 
-    override fun onNewToken(token: String) {
-        super.onNewToken(token)
-    }
-
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
         message.notification?.let {

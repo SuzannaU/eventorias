@@ -1,6 +1,5 @@
 package parcours.android.eventorias.ui.screen.profile
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +14,6 @@ import parcours.android.eventorias.domain.repository.UserRepository
 import parcours.android.eventorias.domain.service.NotificationService
 import parcours.android.eventorias.ui.DispatcherProvider
 
-private const val TAG = "TAG ProfileViewModel"
 const val FCM_ALL_TOPICS = "all"
 
 class ProfileViewModel(
@@ -52,7 +50,6 @@ class ProfileViewModel(
                     else -> R.string.unknown_error
                 }
                 _profileScreenState.value = ProfileScreenState.Error(errorRes)
-                Log.e(TAG, "Error while loading user profile: ${e.message}")
             }
         }
     }

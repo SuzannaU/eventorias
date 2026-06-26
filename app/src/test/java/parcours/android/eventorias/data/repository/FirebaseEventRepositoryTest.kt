@@ -1,14 +1,12 @@
 package parcours.android.eventorias.data.repository
 
 import android.net.Uri
-import android.util.Log
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.firestore.FirebaseFirestoreException
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -32,11 +30,6 @@ class FirebaseEventRepositoryTest {
 
     @BeforeEach
     fun setUp() {
-        mockkStatic(Log::class)
-        every { Log.i(any<String>(), any<String>()) } returns 0
-        every { Log.w(any<String>(), any<String>()) } returns 0
-        every { Log.e(any<String>(), any<String>()) } returns 0
-        
         eventRepository = FirebaseEventRepository(eventDataSource, locationService)
     }
 
@@ -114,7 +107,7 @@ class FirebaseEventRepositoryTest {
         val mockUri = mockk<Uri>()
         val downloadUri = mockk<Uri>()
         every { downloadUri.toString() } returns "https://photo.url"
-        
+
         coEvery { eventDataSource.uploadEventPicture(mockUri) } returns downloadUri
         coEvery { eventDataSource.saveEvent(any()) } returns Unit
 

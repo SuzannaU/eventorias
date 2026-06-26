@@ -10,6 +10,7 @@ import parcours.android.eventorias.data.datasource.EventDataSource
 import parcours.android.eventorias.data.datasource.FirebaseEventDataSource
 import parcours.android.eventorias.data.datasource.FirebaseUserDataSource
 import parcours.android.eventorias.data.datasource.UserDataSource
+import parcours.android.eventorias.data.repository.EventWithAuthorRepositoryImpl
 import parcours.android.eventorias.data.repository.FirebaseEventRepository
 import parcours.android.eventorias.data.repository.FirebaseUserRepository
 import parcours.android.eventorias.data.repository.ImageRepositoryImpl
@@ -18,6 +19,7 @@ import parcours.android.eventorias.data.service.FirebaseAuthService
 import parcours.android.eventorias.data.service.GeocoderService
 import parcours.android.eventorias.data.service.LocationService
 import parcours.android.eventorias.domain.repository.EventRepository
+import parcours.android.eventorias.domain.repository.EventWithAuthorRepository
 import parcours.android.eventorias.domain.repository.ImageRepository
 import parcours.android.eventorias.domain.repository.UserRepository
 import parcours.android.eventorias.domain.service.AuthService
@@ -43,12 +45,13 @@ val appModule = module {
     single<UserRepository> { FirebaseUserRepository(get()) }
     single<EventDataSource> { FirebaseEventDataSource(get(), get()) }
     single<EventRepository> { FirebaseEventRepository(get(), get()) }
+    single<EventWithAuthorRepository> { EventWithAuthorRepositoryImpl(get(), get()) }
     single<ImageRepository> { ImageRepositoryImpl() }
     single<NotificationService> { FcmNotificationService() }
 
     viewModel { MainViewModel(get(), get(), get()) }
-    viewModel { ListViewModel(get(), get(), get()) }
+    viewModel { ListViewModel(get(), get()) }
     viewModel { AddEventViewModel(get(), get(), get(), get()) }
     viewModel { ProfileViewModel(get(), get(), get()) }
-    viewModel { (eventId: String) -> DetailViewModel(get(), get(), get(), eventId) }
+    viewModel { (eventId: String) -> DetailViewModel(get(), get(), eventId) }
 }

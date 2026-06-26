@@ -1,6 +1,5 @@
 package parcours.android.eventorias.data.repository
 
-import android.util.Log
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -14,7 +13,6 @@ import parcours.android.eventorias.domain.exceptions.UserNotFoundException
 import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.domain.repository.UserRepository
 
-private const val TAG = "TAG UserRepository"
 
 class FirebaseUserRepository(
     private val userDataSource: UserDataSource,
@@ -51,9 +49,7 @@ class FirebaseUserRepository(
 
         try {
             userDataSource.saveUser(updatedUser.toDto())
-            Log.i(TAG, "user updated in firestore")
         } catch (e: Exception) {
-            Log.w(TAG, "user NOT updated in firestore")
             handleException(e, "Error during user update")
         }
     }
@@ -67,7 +63,10 @@ class FirebaseUserRepository(
         val customException = when (e) {
             is FirebaseAuthException -> AuthException(e.message ?: "$messagePrefix (Auth)")
             is FirebaseNetworkException -> NetworkException(e.message ?: "$messagePrefix (Network)")
-            is FirebaseFirestoreException -> DatabaseException(e.message ?: "$messagePrefix (Firestore)")
+            is FirebaseFirestoreException -> DatabaseException(
+                e.message ?: "$messagePrefix (Firestore)"
+            )
+
             else -> Exception(e.message)
         }
         throw customException

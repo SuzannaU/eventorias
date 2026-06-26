@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -43,7 +42,6 @@ import parcours.android.eventorias.ui.screen.loading.LoadingScreen
 import parcours.android.eventorias.ui.screen.profile.ProfileScreen
 import parcours.android.eventorias.ui.theme.EventoriasTheme
 
-private const val TAG = "TAG MainActivity"
 
 class MainActivity : ComponentActivity() {
 
@@ -57,11 +55,7 @@ class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
-        if (isGranted) {
-            Log.i(TAG, "Notification permission granted")
-        } else {
-            Log.i(TAG, "Notification permission denied")
-        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -131,12 +125,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
-        val response = result.idpResponse
         if (result.resultCode == RESULT_OK) {
-            Log.i(TAG, "user signed in")
             viewModel.createUser()
-        } else if (response?.error != null) {
-            Log.i(TAG, "Error while signing in: ${response.error?.message}")
         }
     }
 

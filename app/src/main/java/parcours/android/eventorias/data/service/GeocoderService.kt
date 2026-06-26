@@ -5,7 +5,6 @@ import android.content.Context
 import android.location.Address
 import android.location.Geocoder
 import android.os.Build
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -34,15 +33,9 @@ class GeocoderService(
                                         addresses[0].longitude
                                     )
                                 } else null
-                                Log.d("TAG", "coordinates from geocoder: $coords")
                                 continuation.resume(coords)
                             }
 
-
-                            override fun onError(errorMessage: String?) {
-                                super.onError(errorMessage)
-
-                            }
 
                         }
                     )
@@ -69,11 +62,6 @@ class GeocoderService(
                         object : Geocoder.GeocodeListener {
                             override fun onGeocode(addresses: MutableList<Address>) {
                                 continuation.resume(addresses.firstOrNull())
-                            }
-
-                            override fun onError(errorMessage: String?) {
-                                super.onError(errorMessage)
-
                             }
 
                         }

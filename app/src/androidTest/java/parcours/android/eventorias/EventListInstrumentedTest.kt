@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.domain.model.EventWithAuthor
 import parcours.android.eventorias.domain.model.User
 import parcours.android.eventorias.ui.screen.list.ListScreen
 import parcours.android.eventorias.ui.screen.list.ListViewModel
@@ -28,15 +29,15 @@ class EventListInstrumentedTest {
 
     @Test
     fun loadedEventsShouldBeDisplayed() {
-        val fakeEvents = listOf(
-            Pair(Event(title = "Art exhibition", eventId = "1"), User(userId = "user123")),
-            Pair(Event(title = "Tech conference", eventId = "2"), User(userId = "user123"))
+        val fakeEventsWithAuthor = listOf(
+            EventWithAuthor(Event(title = "Art exhibition", eventId = "1"), User(userId = "user123")),
+            EventWithAuthor(Event(title = "Tech conference", eventId = "2"), User(userId = "user123"))
         )
 
         val viewModel = mockk<ListViewModel>(relaxed = true)
         every { viewModel.listScreenState } returns MutableStateFlow(
             ListViewModel.ListScreenState.EventsLoaded(
-                fakeEvents
+                fakeEventsWithAuthor
             )
         )
         every { viewModel.searchQuery } returns MutableStateFlow("")
@@ -105,15 +106,15 @@ class EventListInstrumentedTest {
 
     @Test
     fun searchFieldInputShouldTriggerViewModel() {
-        val fakeEvents = listOf(
-            Pair(Event(title = "Art exhibition", eventId = "1"), User(userId = "user123")),
-            Pair(Event(title = "Tech conference", eventId = "2"), User(userId = "user123"))
+        val fakeEventsWithAuthor = listOf(
+            EventWithAuthor(Event(title = "Art exhibition", eventId = "1"), User(userId = "user123")),
+            EventWithAuthor(Event(title = "Tech conference", eventId = "2"), User(userId = "user123"))
         )
 
         val viewModel = mockk<ListViewModel>(relaxed = true)
         every { viewModel.listScreenState } returns MutableStateFlow(
             ListViewModel.ListScreenState.EventsLoaded(
-                fakeEvents
+                fakeEventsWithAuthor
             )
         )
         every { viewModel.searchQuery } returns MutableStateFlow("")

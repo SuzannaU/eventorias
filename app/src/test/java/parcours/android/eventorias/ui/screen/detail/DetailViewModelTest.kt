@@ -1,10 +1,8 @@
 package parcours.android.eventorias.ui.screen.detail
 
-import android.util.Log
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -13,12 +11,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import parcours.android.eventorias.R
-import parcours.android.eventorias.data.repository.FirebaseEventRepository
-import parcours.android.eventorias.data.repository.FirebaseUserRepository
 import parcours.android.eventorias.domain.exceptions.DatabaseException
 import parcours.android.eventorias.domain.exceptions.NetworkException
 import parcours.android.eventorias.domain.model.Event
+import parcours.android.eventorias.domain.model.EventWithAuthor
 import parcours.android.eventorias.domain.model.User
+import parcours.android.eventorias.domain.repository.EventWithAuthorRepository
 import parcours.android.eventorias.ui.DispatcherProvider
 import parcours.android.eventorias.ui.MainDispatcherExtension
 
@@ -30,8 +28,7 @@ class DetailViewModelTest {
     val mainDispatcherExtension = MainDispatcherExtension()
 
     private val dispatcherProvider = mockk<DispatcherProvider>()
-    private val eventRepository = mockk<FirebaseEventRepository>(relaxed = true)
-    private val userRepository = mockk<FirebaseUserRepository>(relaxed = true)
+    private val eventWithAuthorRepository = mockk<EventWithAuthorRepository>(relaxed = true)
     private val eventId = "test_event_id"
     private lateinit var viewModel: DetailViewModel
 
@@ -39,63 +36,61 @@ class DetailViewModelTest {
     fun setUp() {
         every { dispatcherProvider.io } returns mainDispatcherExtension.testDispatcher
         every { dispatcherProvider.main } returns mainDispatcherExtension.testDispatcher
-
-        mockkStatic(Log::class)
-        every { Log.e(any(), any()) } returns 0
     }
 
     @Test
     fun `loadEvent success should update uiState with event`() = runTest {
-        val mockEvent = Event(eventId = "123", title = "title")
-        val mockUser = User(userId = "123")
-        coEvery { eventRepository.getEventById(eventId) } returns mockEvent
-        coEvery { userRepository.getUserById(any()) } returns mockUser
+        val mockEventWithAuthor =
+            EventWithAuthor(Event(eventId = "123", title = "title"), User(userId = "123"))
+        coEvery { eventWithAuthorRepository.getEventByIdWithAuthor(eventId) } returns mockEventWithAuthor
 
-        viewModel = DetailViewModel(dispatcherProvider, eventRepository, userRepository, eventId)
+
+        viewModel = DetailViewModel(dispatcherProvider, eventWithAuthorRepository, eventId)
 
         assertTrue(viewModel.uiState.value is DetailViewModel.DetailUiState.Success)
-        assertEquals(mockEvent, (viewModel.uiState.value as DetailViewModel.DetailUiState.Success).event)
+        assertEquals(
+            mockEventWithAuthor,
+            (viewModel.uiState.value as DetailViewModel.DetailUiState.Success).eventWithAuthor
+        )
     }
 
     @Test
     fun `loadEvent failure should update uiState with error`() = runTest {
-        val mockUser = mockk<User>()
-        coEvery { eventRepository.getEventById(eventId) } returns null
-        coEvery { userRepository.getUserById(any()) } returns mockUser
+        coEvery { eventWithAuthorRepository.getEventByIdWithAuthor(eventId) } returns null
 
-        viewModel = DetailViewModel(dispatcherProvider, eventRepository, userRepository, eventId)
 
-        assertTrue(viewModel.uiState.value is DetailViewModel.DetailUiState.Error)
-    }
-
-    @Test
-    fun `loadAuthor failure should update uiState with error`() = runTest {
-        val mockEvent = mockk<Event>()
-        coEvery { eventRepository.getEventById(eventId) } returns mockEvent
-        coEvery { userRepository.getUserById(any()) } returns null
-
-        viewModel = DetailViewModel(dispatcherProvider, eventRepository, userRepository, eventId)
+        viewModel = DetailViewModel(dispatcherProvider, eventWithAuthorRepository, eventId)
 
         assertTrue(viewModel.uiState.value is DetailViewModel.DetailUiState.Error)
     }
 
     @Test
     fun `loadEvent network exception should update uiState with network error`() = runTest {
-        coEvery { eventRepository.getEventById(eventId) } throws NetworkException("No network")
+        coEvery { eventWithAuthorRepository.getEventByIdWithAuthor(eventId) } throws NetworkException(
+            "No network"
+        )
 
-        viewModel = DetailViewModel(dispatcherProvider, eventRepository, userRepository, eventId)
+        viewModel = DetailViewModel(dispatcherProvider, eventWithAuthorRepository, eventId)
 
         assertTrue(viewModel.uiState.value is DetailViewModel.DetailUiState.Error)
-        assertEquals(R.string.network_error, (viewModel.uiState.value as DetailViewModel.DetailUiState.Error).errorMessageId)
+        assertEquals(
+            R.string.network_error,
+            (viewModel.uiState.value as DetailViewModel.DetailUiState.Error).errorMessageId
+        )
     }
 
     @Test
     fun `loadEvent database exception should update uiState with database error`() = runTest {
-        coEvery { eventRepository.getEventById(eventId) } throws DatabaseException("Firestore error")
+        coEvery { eventWithAuthorRepository.getEventByIdWithAuthor(eventId) } throws DatabaseException(
+            "Firestore error"
+        )
 
-        viewModel = DetailViewModel(dispatcherProvider, eventRepository, userRepository, eventId)
+        viewModel = DetailViewModel(dispatcherProvider, eventWithAuthorRepository, eventId)
 
         assertTrue(viewModel.uiState.value is DetailViewModel.DetailUiState.Error)
-        assertEquals(R.string.database_error, (viewModel.uiState.value as DetailViewModel.DetailUiState.Error).errorMessageId)
+        assertEquals(
+            R.string.database_error,
+            (viewModel.uiState.value as DetailViewModel.DetailUiState.Error).errorMessageId
+        )
     }
 }

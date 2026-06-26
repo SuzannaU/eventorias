@@ -2,7 +2,6 @@ package parcours.android.eventorias.ui.screen.add
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,8 +22,6 @@ import java.text.DateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-
-private const val TAG = "TAG AddEventViewModel"
 
 class AddEventViewModel(
     private val dispatcher: DispatcherProvider,
@@ -140,9 +137,7 @@ class AddEventViewModel(
                     is DatabaseException -> R.string.database_error
                     else -> R.string.unknown_error
                 }
-                _saveState.value = SaveState.Error(errorRes)
-                Log.e(TAG, "Error while adding event: ${e.message}")
-            }
+                _saveState.value = SaveState.Error(errorRes)}
         }
     }
 

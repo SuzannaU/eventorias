@@ -1,12 +1,10 @@
 package parcours.android.eventorias.ui.screen.add
 
 import android.net.Uri
-import android.util.Log
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -43,10 +41,8 @@ class AddEventViewModelTest {
         every { dispatcherProvider.io } returns mainDispatcherExtension.testDispatcher
         every { dispatcherProvider.main } returns mainDispatcherExtension.testDispatcher
 
-        viewModel = AddEventViewModel(dispatcherProvider, eventRepository, userRepository, imageRepository)
-
-        mockkStatic(Log::class)
-        every { Log.e(any(), any()) } returns 0
+        viewModel =
+            AddEventViewModel(dispatcherProvider, eventRepository, userRepository, imageRepository)
     }
 
     @Test

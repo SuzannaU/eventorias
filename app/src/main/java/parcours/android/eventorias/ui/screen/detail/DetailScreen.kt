@@ -69,9 +69,9 @@ fun DetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    val event = (uiState as? DetailViewModel.DetailUiState.Success)?.event
+                    val event = (uiState as? DetailViewModel.DetailUiState.Success)?.eventWithAuthor
                     Text(
-                        text = event?.title ?: stringResource(R.string.no_event),
+                        text = event?.event?.title ?: stringResource(R.string.no_event),
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -104,8 +104,8 @@ fun DetailScreen(
 
                 is DetailViewModel.DetailUiState.Success -> {
                     DetailContent(
-                        event = state.event,
-                        author = state.author,
+                        event = state.eventWithAuthor.event,
+                        author = state.eventWithAuthor.author,
                     )
                 }
 
