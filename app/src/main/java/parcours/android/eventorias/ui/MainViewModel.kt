@@ -30,8 +30,6 @@ class MainViewModel(
     private fun observeAuthState() {
 
         viewModelScope.launch(dispatcher.main) {
-            // Collect updates reactively. If network drops or errors occur,
-            // TODO you handle them cleanly via flow operators like .catch {}
             authService.authState
                 .catch { _uiState.value = _uiState.value.copy(isAuthConnected = false) }
                 .collectLatest { user ->

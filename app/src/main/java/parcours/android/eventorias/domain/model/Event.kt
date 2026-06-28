@@ -1,5 +1,7 @@
 package parcours.android.eventorias.domain.model
 
+import androidx.annotation.StringRes
+import parcours.android.eventorias.R
 import java.util.Date
 
 data class Event(
@@ -13,4 +15,11 @@ data class Event(
     val category: Category = Category.OTHER,
 )
 
-enum class Category { ART, TECH, CHARITY, SPORT, FOOD, OTHER }
+enum class Category(@get:StringRes val labelRes: Int) {
+    ART(R.string.category_art),
+    TECH(R.string.category_tech),
+    CHARITY(R.string.category_charity),
+    SPORT(R.string.category_sport),
+    FOOD(R.string.category_food),
+    OTHER(R.string.category_other),
+}

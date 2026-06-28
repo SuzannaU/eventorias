@@ -67,7 +67,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import parcours.android.eventorias.R
 import parcours.android.eventorias.domain.model.Category
-import parcours.android.eventorias.ui.labelRes
 import parcours.android.eventorias.ui.screen.error.ErrorScreen
 import parcours.android.eventorias.ui.screen.loading.LoadingScreen
 
@@ -511,9 +510,10 @@ fun CategoryDropdownField(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier
-        .fillMaxWidth()
-        .semantics(mergeDescendants = true) {}) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {}) {
         Card(
             shape = RoundedCornerShape(4.dp),
             colors = CardDefaults.cardColors(
