@@ -3,6 +3,7 @@ package parcours.android.eventorias
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,7 +48,9 @@ class DetailListInstrumentedTest {
 
         composeTestRule.onNodeWithText("Awesome Concert").assertIsDisplayed()
         composeTestRule.onNodeWithText("A very cool concert description.").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Paris, France").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Paris, France")
+            .performScrollTo()
+            .assertIsDisplayed()
     }
 
     @Test

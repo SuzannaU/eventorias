@@ -9,6 +9,13 @@ plugins {
     id("jacoco")
 }
 
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(keystorePropertiesFile.inputStream())
+}
+
 android {
     namespace = "parcours.android.eventorias"
     compileSdk {
@@ -27,8 +34,25 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+//    signingConfigs {
+//        create("release") {
+//            if (keystorePropertiesFile.exists()) {
+//                storeFile = file(keystoreProperties["storeFile"] as String)
+//                storePassword = keystoreProperties["storePassword"] as String
+//                keyAlias = keystoreProperties["keyAlias"] as String
+//                keyPassword = keystoreProperties["keyPassword"] as String
+//            } else {
+//                storeFile = file(System.getenv("KEYSTORE_FILE"))
+//                storePassword = System.getenv("KEYSTORE_PASSWORD")
+//                keyAlias = System.getenv("KEY_ALIAS")
+//                keyPassword = System.getenv("KEY_PASSWORD")
+//            }
+//        }
+//    }
+
     buildTypes {
         release {
+            //signingConfig = signingConfigs.getByName("release")
             isDebuggable = false
             isMinifyEnabled = true
             isShrinkResources = true
@@ -123,13 +147,16 @@ sonar {
     properties {
         property("sonar.projectKey", "SuzannaU_eventorias")
         property("sonar.organization", "suzannau")
+        property("sonar.host.url", "https://sonarcloud.io")
 
-        val localProperties = Properties()
-        val localPropertiesFile = rootProject.file("local.properties")
-        if (localPropertiesFile.exists()) {
-            localProperties.load(localPropertiesFile.inputStream())
-        }
-        val token = localProperties.getProperty("SONAR_TOKEN") ?: ""
+        val token = System.getenv("SONAR_TOKEN") ?: run {
+            val localProperties = Properties()
+            val localPropertiesFile = rootProject.file("local.properties")
+            if (localPropertiesFile.exists()) {
+                localProperties.load(localPropertiesFile.inputStream())
+            }
+            localProperties.getProperty("SONAR_TOKEN")
+        } ?: ""
         property("sonar.token", token)
 
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
@@ -201,4 +228,8 @@ dependencies {
 
 dependencyLocking {
     lockAllConfigurations()
+}
+
+secrets {
+    defaultPropertiesFileName = "secrets.defaults.properties"
 }
