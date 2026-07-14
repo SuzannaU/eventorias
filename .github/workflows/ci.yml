@@ -43,7 +43,7 @@ jobs:
           MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          api-level: 29
+          api-level: 31
           arch: x86_64
           disable-animations: true
           script: ./gradlew connectedDebugAndroidTest
