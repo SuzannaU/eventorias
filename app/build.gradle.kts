@@ -123,13 +123,16 @@ sonar {
     properties {
         property("sonar.projectKey", "SuzannaU_eventorias")
         property("sonar.organization", "suzannau")
+        property("sonar.host.url", "https://sonarcloud.io")
 
-        val localProperties = Properties()
-        val localPropertiesFile = rootProject.file("local.properties")
-        if (localPropertiesFile.exists()) {
-            localProperties.load(localPropertiesFile.inputStream())
-        }
-        val token = localProperties.getProperty("SONAR_TOKEN") ?: ""
+        val token = System.getenv("SONAR_TOKEN") ?: run {
+            val localProperties = Properties()
+            val localPropertiesFile = rootProject.file("local.properties")
+            if (localPropertiesFile.exists()) {
+                localProperties.load(localPropertiesFile.inputStream())
+            }
+            localProperties.getProperty("SONAR_TOKEN")
+        } ?: ""
         property("sonar.token", token)
 
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
@@ -201,4 +204,8 @@ dependencies {
 
 dependencyLocking {
     lockAllConfigurations()
+}
+
+secrets {
+    defaultPropertiesFileName = "secrets.defaults.properties"
 }
