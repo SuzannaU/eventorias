@@ -1,8 +1,12 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.gms)
     alias(libs.plugins.secrets)
+    alias(libs.plugins.sonar)
+    id("jacoco")
 }
 
 android {
@@ -25,6 +29,7 @@ android {
 
     buildTypes {
         release {
+            isDebuggable = false
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -32,11 +37,17 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
+        }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     buildFeatures {
         compose = true
         buildConfig = true
@@ -45,12 +56,85 @@ android {
     testOptions {
         unitTests.all {
             it.useJUnitPlatform()
+            it.configure<JacocoTaskExtension> {
+                isIncludeNoLocationClasses = true
+                excludes = listOf("jdk.internal.*")
+            }
         }
+    }
+    lint {
+        abortOnError = false
+        xmlReport = true
+        checkReleaseBuilds = false
     }
 }
 
 kotlin {
     jvmToolchain(17)
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+val fileFilter = listOf(
+    "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
+    "**/*Test*.*", "android/**/*.*", "**/*$[0-9]*.*",
+    "**/*Directions*.*", "**/*Args*.*", "**/*_Factory.*",
+    "**/*_MembersInjector.*", "**/*_LifecycleAdapter.*",
+    "**/*Component*.*", "**/*Module*.*", "**/*_HiltModules*.*", "**/*Hilt*.*"
+)
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn(
+        "testDebugUnitTest",
+        "connectedDebugAndroidTest"
+    )
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    sourceDirectories.setFrom(
+        files(
+            "${project.projectDir}/src/main/java",
+            "${project.projectDir}/src/main/kotlin"
+        )
+    )
+
+    classDirectories.setFrom(
+        fileTree(layout.buildDirectory.asFile.get()) {
+            include("**/intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes/**/*.class")
+            include("**/intermediates/javac/debug/classes/**/*.class")
+            exclude(fileFilter)
+        }
+    )
+
+    executionData.setFrom(
+        fileTree(layout.buildDirectory.asFile.get()) {
+            include("**/*.exec")
+            include("**/*.ec")
+        }
+    )
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "SuzannaU_eventorias")
+        property("sonar.organization", "suzannau")
+
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(localPropertiesFile.inputStream())
+        }
+        val token = localProperties.getProperty("SONAR_TOKEN") ?: ""
+        property("sonar.token", token)
+
+        property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
+        property("sonar.androidLint.reportPaths", "${layout.buildDirectory.get()}/reports/lint-results-debug.xml")
+    }
 }
 
 dependencies {
@@ -62,7 +146,6 @@ dependencies {
     // Kotlin
     runtimeOnly(libs.coroutines.core)
     runtimeOnly(libs.coroutines.android)
-//    runtimeOnly(libs.coroutines.play.services)
 
     // DI
     implementation(platform(libs.koin.bom))
@@ -114,4 +197,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.mockk.android)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+dependencyLocking {
+    lockAllConfigurations()
 }

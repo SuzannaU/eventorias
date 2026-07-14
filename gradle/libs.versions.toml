@@ -3,6 +3,7 @@ agp = "9.2.1"
 kotlin = "2.3.21"
 gms = "4.4.4"
 secrets = "2.0.1"
+sonar = "7.3.1.8318"
 coroutines = "1.11.0"
 coreKtx = "1.18.0"
 lifecycleRuntimeKtx = "2.10.0"
@@ -73,7 +74,7 @@ mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "moc
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 gms = { id = "com.google.gms.google-services", version.ref = "gms" }
 secrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secrets" }
+sonar = { id = "org.sonarqube", version.ref = "sonar"}
