@@ -37,7 +37,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew testDebugUnitTest
 
-      - name: Run Android Instrumented Tests
+      - name: Run Android Instrumented Tests & Generate Report
         uses: reactivecircus/android-emulator-runner@v2
         env:
           MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
@@ -46,10 +46,8 @@ jobs:
           api-level: 31
           arch: x86_64
           disable-animations: true
-          script: ./gradlew connectedDebugAndroidTest
-
-      - name: Generate Coverage Report
-        run: ./gradlew jacocoTestReport
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: ./gradlew connectedDebugAndroidTest jacocoTestReport
 
       - name: SonarCloud Analysis
         env:
