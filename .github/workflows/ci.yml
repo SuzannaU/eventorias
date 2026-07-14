@@ -34,10 +34,14 @@ jobs:
       - name: Build and Run Unit Tests
         env:
           MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew testDebugUnitTest
 
       - name: Run Android Instrumented Tests
         uses: reactivecircus/android-emulator-runner@v2
+        env:
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           api-level: 29
           arch: x86_64
