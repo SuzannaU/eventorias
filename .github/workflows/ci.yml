@@ -32,6 +32,8 @@ jobs:
           fi
 
       - name: Build and Run Unit Tests
+        env:
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
         run: ./gradlew testDebugUnitTest
 
       - name: Run Android Instrumented Tests
