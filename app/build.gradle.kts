@@ -34,25 +34,25 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-//    signingConfigs {
-//        create("release") {
-//            if (keystorePropertiesFile.exists()) {
-//                storeFile = file(keystoreProperties["storeFile"] as String)
-//                storePassword = keystoreProperties["storePassword"] as String
-//                keyAlias = keystoreProperties["keyAlias"] as String
-//                keyPassword = keystoreProperties["keyPassword"] as String
-//            } else {
-//                storeFile = file(System.getenv("KEYSTORE_FILE"))
-//                storePassword = System.getenv("KEYSTORE_PASSWORD")
-//                keyAlias = System.getenv("KEY_ALIAS")
-//                keyPassword = System.getenv("KEY_PASSWORD")
-//            }
-//        }
-//    }
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+            } else {
+                storeFile = file(System.getenv("KEYSTORE_FILE"))
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
 
     buildTypes {
         release {
-            //signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName("release")
             isDebuggable = false
             isMinifyEnabled = true
             isShrinkResources = true
